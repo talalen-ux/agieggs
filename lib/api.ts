@@ -37,7 +37,7 @@ function trimEvents(state: GameState) {
   if (state.events.length > 100) state.events = state.events.slice(0, 100);
 }
 
-export function ok<T>(data: T) {
+export function ok(data: object) {
   return NextResponse.json({ ok: true, ...data });
 }
 

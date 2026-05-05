@@ -11,3 +11,4 @@ dist
 .turbo
 data/state.json
 coverage
+tsconfig.tsbuildinfo
