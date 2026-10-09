@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useGame } from "@/components/StateProvider";
 import { Pet3D } from "@/components/Pet3D";
 import { Bar } from "@/components/Stat";
@@ -18,16 +19,24 @@ export default function EvolvePage() {
   const { state, call } = useGame();
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
-  const pet = state?.pets[0];
-  if (!state) return null;
+
+  if (!state) return <div className="container-pad">loading…</div>;
+  const pet = state.pets[0];
 
   if (!pet) {
     return (
-      <div className="pt-20 text-center">
-        <div className="kbd">no pet yet</div>
-        <h1 className="text-2xl mt-3">The evolution chamber sleeps.</h1>
-        <p className="text-white/50 mt-3">Hatch an egg first.</p>
-      </div>
+      <section className="full-bleed max-w-[1400px] w-full mx-auto pt-10 pb-20">
+        <div className="eyebrow mb-5">03 / Evolution chamber</div>
+        <h1 className="display display-lg">
+          No pet to evolve <br /> <span className="text-ink-mute">yet.</span>
+        </h1>
+        <p className="text-ink-mute mt-6 max-w-md">
+          Open the Egg Chamber, commit AGI, and hatch a pet first.
+        </p>
+        <Link href="/eggs" className="btn btn-primary btn-xl mt-8">
+          Go to Egg Chamber
+        </Link>
+      </section>
     );
   }
 
@@ -58,99 +67,156 @@ export default function EvolvePage() {
   }
 
   return (
-    <div className="space-y-10 pt-6">
-      <header>
-        <div className="kbd">evolution chamber</div>
-        <h1 className="text-3xl font-semibold tracking-tight mt-1">
-          {ns ? `${pet.name} → ${ns.toUpperCase()}` : `${pet.name} has reached AGI.`}
+    <section className="full-bleed max-w-[1400px] w-full mx-auto pt-6 pb-20">
+      <div className="eyebrow mb-6">03 / Evolution chamber</div>
+
+      <header className="grid lg:grid-cols-[1.3fr_1fr] gap-10 items-end mb-14">
+        <h1 className="display display-xl">
+          {ns ? `${pet.name}` : `${pet.name} reached`} <br />
+          <span className="bg-lime px-3">
+            {ns ? ns.toUpperCase() : "AGI"}
+          </span>
+          {ns ? "." : ""}
         </h1>
+        <p className="text-ink-mute text-[17px] leading-relaxed max-w-md">
+          Four stages up to AGI. Each one unlocks new skills; falling out of
+          band dims them. Training burns AGI into the compute treasury.
+        </p>
       </header>
 
-      <section className="grid lg:grid-cols-2 gap-8 items-center">
-        <div className="flex justify-center">
-          <Pet3D pet={pet} size={300} />
+      <div className="grid lg:grid-cols-[1fr_1fr] gap-10 items-center">
+        {/* Pet + status */}
+        <div className="card p-10 flex flex-col items-center gap-6">
+          <Pet3D pet={pet} size={260} />
+          <div className="text-center">
+            <div className="display text-[28px] font-semibold tracking-tightest">
+              {pet.name}
+            </div>
+            <div className="eyebrow-mute mt-1">
+              {pet.stage} · intelligence {pet.intelligence}
+            </div>
+            {pet.degraded && (
+              <div className="mt-3 inline-block px-3 py-1 text-[12px] font-semibold uppercase tracking-widest bg-ink text-white rounded-full">
+                degraded
+              </div>
+            )}
+          </div>
         </div>
-        <div className="space-y-5">
-          <div className="glass p-5 space-y-3">
-            <div className="kbd">commitment band</div>
-            <Bar
-              value={progress}
-              label={ns ? `${fmtUsd(usd)} / ${fmtUsd(target ?? 0)}` : "max"}
-            />
-            <div className="text-xs text-white/50">
+
+        {/* Controls */}
+        <div className="space-y-8">
+          <div className="card p-6">
+            <div className="eyebrow-mute">commitment band</div>
+            <div className="display text-[32px] font-semibold tracking-tightest mt-2 mb-4">
+              {fmtUsd(usd)}
+              {ns && (
+                <span className="text-ink-mute text-[16px] font-normal ml-2">
+                  / {fmtUsd(target ?? 0)}
+                </span>
+              )}
+            </div>
+            <Bar value={progress} />
+            <div className="eyebrow-mute mt-3">
               {ns
                 ? `Reach ${fmtUsd(target ?? 0)} held to unlock ${ns}.`
-                : "Final form."}
+                : "Final form reached."}
             </div>
           </div>
-          <div className="glass p-5 space-y-3">
-            <div className="kbd">experience</div>
-            <Bar
-              value={xpProgress}
-              label={`${pet.experience} / ${xpReq} XP`}
-            />
-            <div className="text-xs text-white/50">
-              Train your pet to grow XP. Each session burns 10 AGI to the GPU pool.
+
+          <div className="card p-6">
+            <div className="eyebrow-mute">experience</div>
+            <div className="display text-[32px] font-semibold tracking-tightest mt-2 mb-4">
+              {pet.experience}
+              <span className="text-ink-mute text-[16px] font-normal ml-2">
+                / {xpReq} XP
+              </span>
             </div>
-            <button
-              className="btn"
-              disabled={busy || pet.degraded || state.wallet.agi < 10}
-              onClick={train}
-            >
-              {busy ? "training…" : "Run training cycle (10 AGI)"}
-            </button>
+            <Bar value={xpProgress} />
+            <div className="flex items-center justify-between mt-4 gap-3">
+              <div className="eyebrow-mute">
+                each cycle burns 10 AGI → treasury
+              </div>
+              <button
+                className="btn"
+                disabled={busy || pet.degraded || state.wallet.agi < 10}
+                onClick={train}
+              >
+                {busy ? "training…" : "Run training cycle"}
+              </button>
+            </div>
           </div>
 
           <button
-            className="btn btn-primary w-full"
+            className="btn btn-primary btn-xl w-full justify-between"
             disabled={!check.ok || busy}
             onClick={evolve}
           >
-            {check.ok ? `Evolve to ${ns?.toUpperCase()}` : check.reason ?? "locked"}
+            <span>
+              {check.ok
+                ? `Evolve to ${ns?.toUpperCase()}`
+                : check.reason ?? "locked"}
+            </span>
+            <Arrow />
           </button>
-          {msg && <div className="text-xs text-white/70">{msg}</div>}
+          {msg && <div className="text-[13px] text-ink-mute">{msg}</div>}
         </div>
-      </section>
+      </div>
 
-      <section className="space-y-3">
-        <div className="kbd">stage tree — what you unlock, what you can lose</div>
-        <div className="grid sm:grid-cols-5 gap-3">
+      {/* Stage tree */}
+      <div className="hairline mt-16 pt-10">
+        <div className="eyebrow mb-5">Stage tree</div>
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
           {STAGE_ORDER.map((s) => {
             const active = s === pet.stage;
-            const reached = STAGE_ORDER.indexOf(s) <= STAGE_ORDER.indexOf(pet.stage);
+            const reached =
+              STAGE_ORDER.indexOf(s) <= STAGE_ORDER.indexOf(pet.stage);
             return (
               <div
                 key={s}
-                className={`glass p-4 ${active ? "ring-1 ring-glow-violet" : ""} ${
-                  reached ? "" : "opacity-50"
-                }`}
+                className={`card p-5 ${
+                  active ? "border-ink" : ""
+                } ${reached ? "" : "opacity-50"}`}
               >
-                <div className="text-xs text-white/50">{s.toUpperCase()}</div>
-                <div className="text-sm mt-1">
-                  band {fmtUsd(STAGE_USD_THRESHOLD[s])}
+                <div className="flex items-center justify-between">
+                  <div className="eyebrow-mute">{s.toUpperCase()}</div>
+                  {active && (
+                    <span className="w-2 h-2 rounded-full bg-lime" />
+                  )}
                 </div>
-                <div className="mt-3 flex flex-wrap gap-1">
+                <div className="display text-[24px] font-semibold tracking-tightest mt-2">
+                  ${STAGE_USD_THRESHOLD[s].toLocaleString()}
+                </div>
+                <div className="flex flex-wrap gap-1 mt-3 min-h-[44px]">
                   {STAGE_SKILLS[s].map((k) => (
                     <span
                       key={k}
-                      className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full border border-white/10 text-white/70"
+                      className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full bg-hair-soft text-ink"
                     >
                       {k}
                     </span>
                   ))}
                   {STAGE_SKILLS[s].length === 0 && (
-                    <span className="text-[10px] text-white/30">no skills</span>
+                    <span className="text-[10px] text-ink-faint">—</span>
                   )}
                 </div>
               </div>
             );
           })}
         </div>
-        <div className="kbd text-glow-rose/80">
-          drop below your stage's band → degraded mode → loses compute priority,
-          skill access, autonomy.
-        </div>
-      </section>
-    </div>
+      </div>
+    </section>
+  );
+}
+
+function Arrow() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+      <path
+        d="M3 13 L13 3 M6 3 H13 V10"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+      />
+    </svg>
   );
 }

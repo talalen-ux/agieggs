@@ -4,9 +4,9 @@ import { Nav } from "@/components/Nav";
 import { StateProvider } from "@/components/StateProvider";
 
 export const metadata: Metadata = {
-  title: "AGI.Pets — intelligence as economic commitment",
+  title: "AGI.Pets — intelligence, scarce by commitment",
   description:
-    "A living AI companion protocol. Buy AGI, earn eggs, hatch a pet, and evolve it into autonomy.",
+    "A living AI companion protocol. 100,000,000 AGI. 5,000 pets. Ever.",
 };
 
 export default function RootLayout({
@@ -16,19 +16,16 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body>
+      <body className="min-h-screen flex flex-col font-sans">
         <StateProvider>
-          <div className="min-h-screen flex flex-col">
-            <Nav />
-            <main className="flex-1 container-pad max-w-6xl w-full mx-auto">
-              {children}
-            </main>
-            <footer className="container-pad max-w-6xl w-full mx-auto text-xs text-white/30">
-              <div className="hairline pt-4">
-                AGI.Pets · 100,000,000 cap · 5,000 pets max · MVP
-              </div>
-            </footer>
-          </div>
+          <Nav />
+          <main className="flex-1 w-full">{children}</main>
+          <footer className="full-bleed max-w-[1400px] w-full mx-auto py-6">
+            <div className="hairline pt-5 flex flex-wrap items-center justify-between gap-3 eyebrow-mute">
+              <span>AGI.Pets · fixed 100,000,000 AGI · hard-cap 5,000 pets</span>
+              <span>v0.1 · MVP</span>
+            </div>
+          </footer>
         </StateProvider>
       </body>
     </html>

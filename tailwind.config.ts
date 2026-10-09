@@ -5,55 +5,77 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        canvas: "#FAFAFA",
+        surface: "#FFFFFF",
         ink: {
-          950: "#05060a",
-          900: "#0a0c12",
-          800: "#10131c",
-          700: "#181c28",
+          DEFAULT: "#0A0A0A",
+          soft: "#1F1F1F",
+          mute: "#6B6B6B",
+          faint: "#A0A0A0",
         },
-        glow: {
-          violet: "#9b8cff",
-          cyan: "#7ee8ff",
-          rose: "#ff8ec5",
-          amber: "#ffd07a",
+        hair: "#E7E7E7",
+        hair2: "#F0F0F0",
+        lime: {
+          DEFAULT: "#CDFF4A",
+          deep: "#B9EC2F",
+          glow: "#E6FF8E",
         },
       },
       fontFamily: {
         sans: [
+          "Inter",
           "-apple-system",
           "BlinkMacSystemFont",
           "SF Pro Display",
-          "Inter",
           "system-ui",
           "sans-serif",
         ],
-        mono: ["SF Mono", "ui-monospace", "monospace"],
+        display: [
+          "Inter",
+          "-apple-system",
+          "BlinkMacSystemFont",
+          "SF Pro Display",
+          "system-ui",
+          "sans-serif",
+        ],
+        mono: [
+          "SF Mono",
+          "JetBrains Mono",
+          "ui-monospace",
+          "Menlo",
+          "monospace",
+        ],
       },
-      backdropBlur: {
-        xs: "2px",
+      letterSpacing: {
+        tightest: "-0.04em",
       },
       animation: {
-        breathe: "breathe 5s ease-in-out infinite",
+        breathe: "breathe 6s ease-in-out infinite",
         float: "float 7s ease-in-out infinite",
-        pulse_glow: "pulse_glow 3s ease-in-out infinite",
-        shimmer: "shimmer 8s linear infinite",
+        pulse_soft: "pulse_soft 3s ease-in-out infinite",
+        egg_turn: "egg_turn 24s linear infinite",
+        enter_up: "enter_up 700ms cubic-bezier(0.2, 0.8, 0.2, 1) both",
       },
       keyframes: {
         breathe: {
           "0%, 100%": { transform: "scale(1)" },
-          "50%": { transform: "scale(1.04)" },
+          "50%": { transform: "scale(1.015)" },
         },
         float: {
           "0%, 100%": { transform: "translateY(0px)" },
-          "50%": { transform: "translateY(-12px)" },
+          "50%": { transform: "translateY(-8px)" },
         },
-        pulse_glow: {
+        pulse_soft: {
           "0%, 100%": { opacity: "0.6" },
           "50%": { opacity: "1" },
         },
-        shimmer: {
-          "0%": { backgroundPosition: "-200% 0" },
-          "100%": { backgroundPosition: "200% 0" },
+        egg_turn: {
+          "0%": { transform: "rotate(0deg)" },
+          "100%": { transform: "rotate(360deg)" },
+        },
+        enter_up: {
+          "0%": { opacity: "0", transform: "translateY(16px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
         },
       },
     },

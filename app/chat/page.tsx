@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { useGame } from "@/components/StateProvider";
 import { Pet3D } from "@/components/Pet3D";
 
@@ -18,14 +19,18 @@ export default function ChatPage() {
     }
   }, [pet?.conversation.length]);
 
-  if (!state) return null;
+  if (!state) return <div className="container-pad">loading…</div>;
+
   if (!pet) {
     return (
-      <div className="pt-20 text-center">
-        <div className="kbd">chat</div>
-        <h1 className="text-2xl mt-3">Nothing to talk to yet.</h1>
-        <p className="text-white/50 mt-3">Hatch an egg first.</p>
-      </div>
+      <section className="full-bleed max-w-[1400px] w-full mx-auto pt-10">
+        <div className="eyebrow mb-5">05 / Chat</div>
+        <h1 className="display display-lg">Nothing to talk to.</h1>
+        <p className="text-ink-mute mt-5">Hatch an egg first.</p>
+        <Link href="/eggs" className="btn btn-primary btn-xl mt-6">
+          Go to Egg Chamber
+        </Link>
+      </section>
     );
   }
 
@@ -43,64 +48,73 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="grid lg:grid-cols-[280px,1fr] gap-6 pt-6 min-h-[70vh]">
-      <aside className="glass p-5 flex flex-col items-center gap-4 h-fit lg:sticky lg:top-24">
-        <Pet3D pet={pet} size={180} />
-        <div className="text-center">
-          <div className="text-lg font-semibold">{pet.name}</div>
-          <div className="kbd">{pet.stage} · int {pet.intelligence}</div>
-          {pet.degraded && (
-            <div className="text-xs text-glow-rose mt-2">degraded · responses throttled</div>
-          )}
-        </div>
-        <div className="text-xs text-white/40 text-center leading-relaxed">
-          Personality seeded at egg. Memory persists across sessions.
-        </div>
-      </aside>
+    <section className="full-bleed max-w-[1400px] w-full mx-auto pt-6 pb-10">
+      <div className="eyebrow mb-6">05 / Chat</div>
 
-      <div className="glass-strong flex flex-col overflow-hidden">
-        <div
-          ref={scrollRef}
-          className="flex-1 overflow-y-auto p-5 space-y-3 max-h-[60vh]"
-        >
-          {messages.length === 0 && (
-            <div className="text-center text-white/40 text-sm pt-10">
-              say something to {pet.name}.
+      <div className="grid lg:grid-cols-[320px_1fr] gap-6 min-h-[72vh]">
+        <aside className="card p-6 h-fit lg:sticky lg:top-24">
+          <div className="flex flex-col items-center gap-5">
+            <Pet3D pet={pet} size={180} />
+            <div className="text-center">
+              <div className="display text-[22px] font-semibold tracking-tightest">
+                {pet.name}
+              </div>
+              <div className="eyebrow-mute mt-1">
+                {pet.stage} · int {pet.intelligence}
+              </div>
+              {pet.degraded && (
+                <div className="mt-3 inline-block px-3 py-1 text-[11px] font-semibold uppercase tracking-widest bg-ink text-white rounded-full">
+                  degraded
+                </div>
+              )}
             </div>
-          )}
-          {messages.map((m, i) => (
-            <Bubble
-              key={i}
-              role={m.role}
-              text={m.content}
-            />
-          ))}
-          {sending && <Bubble role="pet" text="…" pulsing />}
-        </div>
-        <form
-          onSubmit={send}
-          className="border-t border-white/5 p-3 flex gap-2"
-        >
-          <input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder={`message ${pet.name}…`}
-            disabled={sending || pet.degraded}
-            maxLength={2000}
-          />
-          <button
-            type="submit"
-            className="btn btn-primary"
-            disabled={sending || !input.trim() || pet.degraded}
+            <div className="hairline w-full pt-4 text-[12px] text-ink-mute leading-relaxed">
+              Personality seeded at egg. Memory persists across sessions.
+              Responses throttle in degraded mode.
+            </div>
+          </div>
+        </aside>
+
+        <div className="card flex flex-col overflow-hidden">
+          <div
+            ref={scrollRef}
+            className="flex-1 overflow-y-auto p-6 space-y-3 max-h-[62vh]"
           >
-            send
-          </button>
-        </form>
-        {error && (
-          <div className="px-4 pb-3 text-xs text-glow-rose">{error}</div>
-        )}
+            {messages.length === 0 && (
+              <div className="text-center text-ink-mute text-sm pt-16">
+                Say something to {pet.name}.
+              </div>
+            )}
+            {messages.map((m, i) => (
+              <Bubble key={i} role={m.role} text={m.content} />
+            ))}
+            {sending && <Bubble role="pet" text="…" pulsing />}
+          </div>
+          <form
+            onSubmit={send}
+            className="hairline p-3 flex gap-2 bg-canvas/60"
+          >
+            <input
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder={`message ${pet.name}…`}
+              disabled={sending || pet.degraded}
+              maxLength={2000}
+            />
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={sending || !input.trim() || pet.degraded}
+            >
+              send
+            </button>
+          </form>
+          {error && (
+            <div className="px-5 pb-3 text-[12px] text-ink">{error}</div>
+          )}
+        </div>
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -117,11 +131,9 @@ function Bubble({
   return (
     <div className={`flex ${mine ? "justify-end" : "justify-start"}`}>
       <div
-        className={`max-w-[78%] px-4 py-2 rounded-2xl text-sm leading-relaxed ${
-          mine
-            ? "bg-glow-violet/30 text-white rounded-br-md"
-            : "bg-white/5 text-white/90 rounded-bl-md"
-        } ${pulsing ? "animate-pulse_glow" : ""}`}
+        className={`max-w-[76%] px-4 py-2.5 text-[14px] leading-relaxed ${
+          mine ? "bubble-mine" : "bubble-pet"
+        } ${pulsing ? "animate-pulse_soft" : ""}`}
       >
         {text}
       </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useGame } from "@/components/StateProvider";
 import { Bar, Stat } from "@/components/Stat";
 import { fmtAgi, timeAgo } from "@/lib/format";
@@ -7,14 +8,17 @@ import { STAGE_SKILLS } from "@/lib/types";
 
 export default function BrainPage() {
   const { state } = useGame();
-  const pet = state?.pets[0];
-  if (!state) return null;
+  if (!state) return <div className="container-pad">loading…</div>;
+  const pet = state.pets[0];
   if (!pet) {
     return (
-      <div className="pt-20 text-center">
-        <div className="kbd">intelligence panel</div>
-        <h1 className="text-2xl mt-3">No brain to inspect.</h1>
-      </div>
+      <section className="full-bleed max-w-[1400px] w-full mx-auto pt-10">
+        <div className="eyebrow mb-5">04 / Intelligence panel</div>
+        <h1 className="display display-lg">No brain to inspect.</h1>
+        <Link href="/eggs" className="btn btn-primary btn-xl mt-8">
+          Hatch a pet
+        </Link>
+      </section>
     );
   }
 
@@ -24,54 +28,52 @@ export default function BrainPage() {
   const computeUsage = pet.degraded ? 0.15 : 0.3 + pet.intelligence / 1500;
 
   return (
-    <div className="space-y-10 pt-6">
-      <header>
-        <div className="kbd">intelligence panel</div>
-        <h1 className="text-3xl font-semibold tracking-tight mt-1">
-          {pet.name}'s brain
+    <section className="full-bleed max-w-[1400px] w-full mx-auto pt-6 pb-20">
+      <div className="eyebrow mb-6">04 / Intelligence</div>
+
+      <header className="grid lg:grid-cols-[1.4fr_1fr] gap-10 items-end mb-14">
+        <h1 className="display display-xl">
+          {pet.name}'s <br /> inner <span className="bg-lime px-3">weather.</span>
         </h1>
-        <p className="text-white/60 mt-2">
-          Personality is seeded at the egg and drifts with use. Memory has
-          decay. Skills unlock with stage.
+        <p className="text-ink-mute text-[17px] leading-relaxed max-w-md">
+          Personality is seeded at the egg and drifts with use. Memory
+          decays. Skills unlock with stage and throttle under degradation.
         </p>
       </header>
 
-      <section className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Stat
-          label="intelligence"
-          value={pet.intelligence}
-          sub="0 → 1000"
-        />
-        <Stat label="experience" value={pet.experience} accent="cyan" />
+      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+        <Stat label="intelligence" value={pet.intelligence} sub="0 → 1000" />
+        <Stat label="experience" value={pet.experience} />
         <Stat
           label="memory fragments"
           value={pet.memory.length}
-          sub="auto-decaying · IPFS-anchored"
-          accent="amber"
+          sub="decaying · IPFS-anchored"
         />
-        <Stat
-          label="rarity"
-          value={t.rarity.toUpperCase()}
-          accent={t.rarity === "mythic" ? "rose" : "violet"}
-        />
-      </section>
+        <Stat label="rarity" value={t.rarity.toUpperCase()} />
+      </div>
 
-      <section className="grid lg:grid-cols-2 gap-6">
-        <div className="glass p-5 space-y-3">
-          <div className="kbd">personality vector</div>
-          {[
-            ["curiosity", t.curiosity],
-            ["warmth", t.warmth],
-            ["mischief", t.mischief],
-            ["discipline", t.discipline],
-            ["weirdness", t.weirdness],
-          ].map(([k, v]) => (
-            <Bar key={k as string} value={(v as number) / 100} label={k as string} />
-          ))}
+      <div className="grid lg:grid-cols-2 gap-6 mb-10">
+        <div className="card p-6">
+          <div className="eyebrow-mute mb-4">personality vector</div>
+          <div className="space-y-4">
+            {[
+              ["curiosity", t.curiosity],
+              ["warmth", t.warmth],
+              ["mischief", t.mischief],
+              ["discipline", t.discipline],
+              ["weirdness", t.weirdness],
+            ].map(([k, v]) => (
+              <Bar
+                key={k as string}
+                value={(v as number) / 100}
+                label={k as string}
+              />
+            ))}
+          </div>
         </div>
 
-        <div className="glass p-5 space-y-3">
-          <div className="kbd">skill modules</div>
+        <div className="card p-6">
+          <div className="eyebrow-mute mb-4">skill modules</div>
           <div className="space-y-2">
             {allSkills.map((s) => {
               const have = skills.includes(s);
@@ -81,50 +83,52 @@ export default function BrainPage() {
                   key={s}
                   className={`flex items-center justify-between px-3 py-2 rounded-xl border ${
                     have && !blocked
-                      ? "border-glow-violet/40 bg-glow-violet/10"
-                      : "border-white/8"
+                      ? "border-ink/90 bg-lime/40"
+                      : "border-hair"
                   }`}
                 >
                   <span className="text-sm">{s}</span>
-                  <span className="text-[10px] uppercase tracking-wider text-white/50">
+                  <span className="eyebrow-mute">
                     {blocked ? "throttled" : have ? "online" : "locked"}
                   </span>
                 </div>
               );
             })}
           </div>
-          <div className="kbd pt-2">
-            compute priority {Math.round(computeUsage * 100)}% · funded by treasury ({fmtAgi(state.supply.computeTreasury)})
+          <div className="eyebrow-mute mt-5 hairline pt-4">
+            compute priority {Math.round(computeUsage * 100)}% · treasury{" "}
+            {fmtAgi(state.supply.computeTreasury)}
           </div>
         </div>
-      </section>
+      </div>
 
-      <section>
-        <div className="kbd mb-3">memory — most-salient first</div>
-        <div className="glass divide-y divide-white/5">
+      <div>
+        <div className="eyebrow mb-3">memory — most-salient first</div>
+        <div className="card divide-y divide-hair">
           {pet.memory.length === 0 && (
-            <div className="px-4 py-6 text-sm text-white/40">
+            <div className="px-5 py-6 text-sm text-ink-mute">
               No memories yet. Talk to {pet.name} on the Chat tab.
             </div>
           )}
           {[...pet.memory]
             .sort((a, b) => b.salience - a.salience)
             .map((m) => (
-              <div key={m.id} className="px-4 py-3 flex items-start gap-3 text-sm">
+              <div
+                key={m.id}
+                className="px-5 py-4 flex items-start gap-3 text-[14px]"
+              >
                 <span
-                  className="mt-1 w-1.5 h-1.5 rounded-full shrink-0"
-                  style={{
-                    background: `rgba(155,140,255,${0.3 + m.salience * 0.7})`,
-                  }}
+                  className="mt-1 w-2 h-2 rounded-full shrink-0 bg-ink"
+                  style={{ opacity: 0.3 + m.salience * 0.7 }}
                 />
                 <div className="flex-1">{m.summary}</div>
-                <div className="kbd shrink-0">
+                <div className="eyebrow-mute shrink-0">
                   {Math.round(m.salience * 100)}% · {timeAgo(m.ts)}
                 </div>
               </div>
             ))}
         </div>
-      </section>
-    </div>
+      </div>
+    </section>
   );
 }

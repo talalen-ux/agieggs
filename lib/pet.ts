@@ -66,7 +66,10 @@ export function rollName(seed: string): string {
   return a + b;
 }
 
-export function hatchEgg(state: GameState): { pet: Pet; events: GameEvent[] } {
+export function hatchEgg(
+  state: GameState,
+  chosenSeed?: string,
+): { pet: Pet; events: GameEvent[] } {
   if (state.wallet.eggs < 1) throw new Error("Not enough egg fragments.");
   if (state.supply.petsMinted >= state.supply.petCap)
     throw new Error("Pet cap reached. The protocol is sealed at 5,000.");
@@ -78,7 +81,10 @@ export function hatchEgg(state: GameState): { pet: Pet; events: GameEvent[] } {
   state.wallet.eggs -= 1;
   state.supply.petsMinted += 1;
   const id = `pet_${Date.now()}_${Math.floor(Math.random() * 1e6)}`;
-  const seed = id + ":" + state.user.id;
+  // If the user picked an egg from the Choose screen, we use its seed so
+  // traits match the preview they committed to. Otherwise fall back to the
+  // pet id (standard random hatch).
+  const seed = (chosenSeed ?? id) + ":" + state.user.id;
   const traits = rollTraits(seed);
   const pet: Pet = {
     id,
