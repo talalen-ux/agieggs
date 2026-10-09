@@ -4,10 +4,11 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const PUBLIC_PATHS = new Set(["/", "/choose"]);
-const APP_PATHS = ["/eggs", "/evolve", "/brain", "/chat", "/arena"];
+const PUBLIC_PATHS = new Set(["/"]);
+const APP_PATHS = ["/choose", "/eggs", "/evolve", "/brain", "/chat", "/arena"];
 
 const APP_LINKS = [
+  { href: "/choose", label: "Discover" },
   { href: "/eggs", label: "Chamber" },
   { href: "/evolve", label: "Evolution" },
   { href: "/brain", label: "Intelligence" },
@@ -48,10 +49,10 @@ export function Nav() {
 
           <div className="hidden md:block">
             <Link
-              href={inApp ? "/eggs" : "/eggs"}
+              href={inApp ? "/choose" : "/choose"}
               className="btn btn-primary"
             >
-              {inApp ? "Chamber" : "Enter app"}
+              {inApp ? "Discover" : "Open app"}
             </Link>
           </div>
 
@@ -92,11 +93,11 @@ export function Nav() {
                 How it works
               </Link>
               <Link
-                href="/eggs"
+                href="/choose"
                 onClick={() => setOpen(false)}
                 className="btn btn-primary w-full mt-2"
               >
-                Enter app
+                Open app
               </Link>
             </nav>
           </div>

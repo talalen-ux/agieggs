@@ -9,22 +9,22 @@ import { STAGE_USD_THRESHOLD } from "@/lib/types";
 import { HowItWorksMotion } from "@/components/HowItWorksMotion";
 
 /** The egg featured in the hero. One, chosen for presence. */
-const HERO = "stn-geode";
+const HERO = "cr-emerald";
 
-/** The viewer's starting list. Hand-curated so the first six feel strong. */
+/** The viewer's starting list. Hand-curated so the first ones feel strong. */
 const DISCOVERY_ORDER = [
+  "cr-emerald",
+  "au-fissure",
   "stn-geode",
+  "cr-petal",
+  "au-fold",
   "wd-maple",
-  "aqua-shard",
+  "cr-prism",
+  "au-guilloche",
   "hex-dome",
-  "fan-crystal",
+  "cr-onyx",
+  "au-craquelure",
   "ind-orb",
-  "stn-marble",
-  "wd-root",
-  "aqua-nebula",
-  "fan-slime",
-  "hex-chip",
-  "ind-copper",
 ] as const;
 
 export default function LandingPage() {

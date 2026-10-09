@@ -16,7 +16,9 @@ export type EggFamily =
   | "hex"
   | "fantasy"
   | "stone"
-  | "wood";
+  | "wood"
+  | "crystal"
+  | "gold";
 
 export type EggId =
   // Aqua ------------------------------------------------------------
@@ -36,7 +38,13 @@ export type EggId =
   | "stn-slate" | "stn-obsidian" | "stn-sand"
   // Wood ------------------------------------------------------------
   | "wd-bark" | "wd-birch" | "wd-redwood"
-  | "wd-fern" | "wd-root" | "wd-maple";
+  | "wd-fern" | "wd-root" | "wd-maple"
+  // Crystal ---------------------------------------------------------
+  | "cr-prism" | "cr-petal" | "cr-spiral"
+  | "cr-rhombus" | "cr-onyx" | "cr-emerald"
+  // Gold ------------------------------------------------------------
+  | "au-dune" | "au-fissure" | "au-guilloche"
+  | "au-fold" | "au-facet" | "au-craquelure";
 
 export type EggCatalogEntry = {
   id: EggId;
@@ -56,6 +64,8 @@ export const FAMILY_LABEL: Record<EggFamily, string> = {
   fantasy: "Fantasy",
   stone: "Stone",
   wood: "Wood",
+  crystal: "Crystal",
+  gold: "Gold",
 };
 
 export const EGG_CATALOG: EggCatalogEntry[] = [
@@ -178,9 +188,51 @@ export const EGG_CATALOG: EggCatalogEntry[] = [
   { id: "wd-maple", name: "Maple", family: "wood", theme: "Amber",
     sheet: "/eggs/wood.webp", col: 2, row: 1,
     description: "Figured maple with amber resin at the seam." },
+
+  // --- Crystal ----------
+  { id: "cr-prism", name: "Prism", family: "crystal", theme: "Facet",
+    sheet: "/eggs/crystal.webp", col: 0, row: 0,
+    description: "Rose-cut crystal bound in a silver cage." },
+  { id: "cr-petal", name: "Petal", family: "crystal", theme: "Bloom",
+    sheet: "/eggs/crystal.webp", col: 1, row: 0,
+    description: "Dark stone cracked open on a quartz bloom." },
+  { id: "cr-spiral", name: "Spiral", family: "crystal", theme: "Twist",
+    sheet: "/eggs/crystal.webp", col: 2, row: 0,
+    description: "Faceted crystal wound in a silver spiral." },
+  { id: "cr-rhombus", name: "Rhombus", family: "crystal", theme: "Centerpiece",
+    sheet: "/eggs/crystal.webp", col: 0, row: 1,
+    description: "A single rhomboid gem in a frosted cage." },
+  { id: "cr-onyx", name: "Onyx", family: "crystal", theme: "Night",
+    sheet: "/eggs/crystal.webp", col: 1, row: 1,
+    description: "Black faceted stone cut by a silver band." },
+  { id: "cr-emerald", name: "Emerald", family: "crystal", theme: "Cut",
+    sheet: "/eggs/crystal.webp", col: 2, row: 1,
+    description: "Emerald-cut diamond in a vaulted silver frame." },
+
+  // --- Gold ----------
+  { id: "au-dune", name: "Dune", family: "gold", theme: "Satin",
+    sheet: "/eggs/gold.webp", col: 0, row: 0,
+    description: "Satin gold with a soft S-curve seam." },
+  { id: "au-fissure", name: "Fissure", family: "gold", theme: "Vein",
+    sheet: "/eggs/gold.webp", col: 1, row: 0,
+    description: "Dark basalt split by a gold vein and crystal." },
+  { id: "au-guilloche", name: "Guilloché", family: "gold", theme: "Pattern",
+    sheet: "/eggs/gold.webp", col: 2, row: 0,
+    description: "Guilloché engraving banded by polished gold." },
+  { id: "au-fold", name: "Fold", family: "gold", theme: "Organic",
+    sheet: "/eggs/gold.webp", col: 0, row: 1,
+    description: "Molten gold folded into itself, mirror polish." },
+  { id: "au-facet", name: "Facet", family: "gold", theme: "Blade",
+    sheet: "/eggs/gold.webp", col: 1, row: 1,
+    description: "Angular panels of brushed and polished gold." },
+  { id: "au-craquelure", name: "Craquelure", family: "gold", theme: "Shell",
+    sheet: "/eggs/gold.webp", col: 2, row: 1,
+    description: "Cream shell crackled with liquid gold." },
 ];
 
-export const FAMILIES: EggFamily[] = ["aqua", "industrial", "hex", "fantasy", "stone", "wood"];
+export const FAMILIES: EggFamily[] = [
+  "aqua", "industrial", "hex", "fantasy", "stone", "wood", "crystal", "gold",
+];
 
 export function eggById(id: EggId): EggCatalogEntry {
   const e = EGG_CATALOG.find((e) => e.id === id);
