@@ -3,11 +3,14 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { Egg } from "@/components/Egg";
+import { EGG_CATALOG } from "@/lib/eggs";
 import { useGame } from "@/components/StateProvider";
 import { fmtUsd } from "@/lib/format";
 import { STAGE_USD_THRESHOLD } from "@/lib/types";
 
 const PRESETS = [25, 50, 100];
+// A quiet rotating "hero" egg at the center of the chamber. Just cosmetic.
+const CHAMBER_EGGS = ["aqua-stripe", "aqua-droplet", "hex-vial", "fan-cloud"] as const;
 
 export default function EggChamberPage() {
   const { state, call } = useGame();
@@ -19,6 +22,13 @@ export default function EggChamberPage() {
   const [msg, setMsg] = useState<string | null>(null);
 
   const amount = preset === "custom" ? custom : preset;
+  const heroEgg = useMemo(
+    () =>
+      EGG_CATALOG.find(
+        (e) => e.id === CHAMBER_EGGS[Math.floor(Date.now() / 60000) % CHAMBER_EGGS.length],
+      ) ?? EGG_CATALOG[0],
+    [],
+  );
 
   if (!state) return <div className="container-pad">loading…</div>;
 
@@ -44,15 +54,12 @@ export default function EggChamberPage() {
   }
 
   return (
-    <section className="full-bleed max-w-[1400px] w-full mx-auto pt-6 pb-16">
+    <section className="full-bleed max-w-[1400px] w-full mx-auto pt-6 pb-20">
       <div className="eyebrow mb-6">01 / Egg Chamber</div>
 
-      {/* ----------------------------------------------------------------
-       * Primary grid — headline + egg + buy card
-       * ---------------------------------------------------------------- */}
-      <div className="grid lg:grid-cols-[1.1fr_0.9fr_0.9fr] gap-10 items-start min-h-[70vh]">
-        {/* Column 1 — headline */}
-        <div className="pt-4 lg:pt-8">
+      <div className="grid lg:grid-cols-[1.1fr_1fr_1fr] gap-10 items-start min-h-[70vh]">
+        {/* Headline */}
+        <div className="pt-4 lg:pt-6">
           <h1 className="display display-xl">
             Life <br />
             starts with <br />
@@ -72,28 +79,20 @@ export default function EggChamberPage() {
                 />
               </svg>
             </span>
-            <span className="text-ink">.</span>
+            <span>.</span>
           </h1>
           <p className="mt-8 text-ink-mute max-w-sm leading-relaxed">
-            Hold AGI within your band. Collect fragments. Reach 1.0 to become
-            eligible to hatch.
+            Hold AGI within your band. Collect fragments. Reach 1.0 to
+            become eligible to hatch.
           </p>
         </div>
 
-        {/* Column 2 — the egg itself */}
-        <div className="relative flex justify-center">
-          <Egg
-            variant="shell"
-            width={360}
-            height={480}
-            rulers
-            className="animate-float"
-          />
-          <PinLabel top="18%" right="-16%" text="dormant" />
-          <PinLabel bottom="8%" left="-10%" text="incubation / 000" />
+        {/* Center egg */}
+        <div className="flex items-center justify-center min-h-[480px]">
+          <Egg egg={heroEgg} size={360} float />
         </div>
 
-        {/* Column 3 — buy/withdraw card */}
+        {/* Buy / withdraw */}
         <div className="card p-6 lg:p-7">
           <div className="flex items-center justify-between hairline-b pb-4 mb-5">
             <h3 className="display text-[22px] font-semibold tracking-tightest">
@@ -156,9 +155,7 @@ export default function EggChamberPage() {
 
               <div className="hairline py-3 flex items-center justify-between text-[14px]">
                 <span className="text-ink-mute">AGI price</span>
-                <span className="mono">
-                  {fmtUsd(state.supply.agiPriceUsd)}
-                </span>
+                <span className="mono">{fmtUsd(state.supply.agiPriceUsd)}</span>
               </div>
               <div className="hairline py-3 flex items-center justify-between text-[14px]">
                 <span className="text-ink-mute">Compute treasury</span>
@@ -174,8 +171,8 @@ export default function EggChamberPage() {
                 <Arrow />
               </button>
               <div className="eyebrow-mute mt-3">
-                Hold at least {fmtUsd(STAGE_USD_THRESHOLD.hatchling)} to begin
-                accruing.
+                Hold at least {fmtUsd(STAGE_USD_THRESHOLD.hatchling)} to
+                begin accruing.
               </div>
             </>
           ) : (
@@ -220,15 +217,11 @@ export default function EggChamberPage() {
             </>
           )}
 
-          {msg && (
-            <div className="mt-4 text-[13px] text-ink-mute">{msg}</div>
-          )}
+          {msg && <div className="mt-4 text-[13px] text-ink-mute">{msg}</div>}
         </div>
       </div>
 
-      {/* ----------------------------------------------------------------
-       * Fragment progress bar + hatch CTA
-       * ---------------------------------------------------------------- */}
+      {/* progress */}
       <div className="hairline mt-14 pt-8 grid lg:grid-cols-[auto_1fr_auto] items-center gap-8">
         <div>
           <div className="display text-[56px] font-semibold leading-none">
@@ -242,7 +235,9 @@ export default function EggChamberPage() {
           </div>
         </div>
         <div className="flex items-center gap-5">
-          <TicksBar value={progress} />
+          <div className="meter flex-1">
+            <span style={{ width: `${progress * 100}%` }} />
+          </div>
           <span className="mono text-ink">{Math.round(progress * 100)}%</span>
         </div>
         <Link
@@ -254,9 +249,6 @@ export default function EggChamberPage() {
         </Link>
       </div>
 
-      {/* ----------------------------------------------------------------
-       * Status footer
-       * ---------------------------------------------------------------- */}
       <div className="hairline mt-10 pt-6 grid grid-cols-2 lg:grid-cols-4 gap-8">
         <FooterStat k="Fixed supply" v="100M" sub="AGI" />
         <FooterStat
@@ -264,7 +256,11 @@ export default function EggChamberPage() {
           v={state.supply.petCap.toLocaleString()}
           sub="ever"
         />
-        <FooterStat k="Minimum held" v={`$${STAGE_USD_THRESHOLD.hatchling}`} sub="to accrue" />
+        <FooterStat
+          k="Minimum held"
+          v={`$${STAGE_USD_THRESHOLD.hatchling}`}
+          sub="to accrue"
+        />
         <div>
           <div className="eyebrow-mute">Warning</div>
           <div className="mt-2 text-[13px] leading-relaxed text-ink-mute">
@@ -295,42 +291,6 @@ function TabBtn({
       {label}
     </button>
   );
-}
-
-function PinLabel({
-  text,
-  top,
-  bottom,
-  left,
-  right,
-}: {
-  text: string;
-  top?: string;
-  bottom?: string;
-  left?: string;
-  right?: string;
-}) {
-  return (
-    <span
-      className="pin absolute hidden lg:inline-flex"
-      style={{ top, bottom, left, right }}
-    >
-      <span>{text}</span>
-    </span>
-  );
-}
-
-function TicksBar({ value }: { value: number }) {
-  const total = 80;
-  const on = Math.round(value * total);
-  const items = useMemo(
-    () =>
-      Array.from({ length: total }).map((_, i) => (
-        <span key={i} className={i < on ? "on" : ""} />
-      )),
-    [on],
-  );
-  return <div className="ticks flex-1">{items}</div>;
 }
 
 function FooterStat({ k, v, sub }: { k: string; v: string; sub: string }) {

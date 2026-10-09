@@ -178,7 +178,12 @@ input::placeholder {
 
 .card {
   background: var(--surface);
-  border: 1px solid var(--hair);
+  border: 1px solid var(--hair-soft);
+  border-radius: 20px;
+}
+.card-ghost {
+  background: transparent;
+  border: 1px solid var(--hair-soft);
   border-radius: 20px;
 }
 
@@ -222,113 +227,9 @@ input::placeholder {
   font-weight: 600;
 }
 
-/* --- The Egg ------------------------------------------------------------- */
-
-/*
- * CSS egg: a droplet shape with layered gradients to feel like a scanned
- * ceramic surface, with a lime seam running vertically.
+/* (Old CSS egg + ruler/pin styles removed. The Egg component now renders
+ * the artwork directly from sprite sheets in /public/eggs/.)
  */
-.egg-shell {
-  position: relative;
-  width: var(--egg-w, 380px);
-  height: var(--egg-h, 500px);
-  border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
-  background:
-    radial-gradient(ellipse 70% 100% at 35% 25%, #ffffff 0%, #f3f3f0 35%, #d9d7d1 72%, #b5b3ac 100%),
-    linear-gradient(180deg, #f6f5f1, #d7d4cc);
-  background-blend-mode: multiply;
-  box-shadow:
-    inset -40px -30px 80px rgba(60, 55, 45, 0.25),
-    inset 25px 20px 60px rgba(255, 255, 255, 0.6),
-    0 40px 80px -20px rgba(0, 0, 0, 0.18),
-    0 10px 30px -10px rgba(0, 0, 0, 0.12);
-}
-
-.egg-shell::before {
-  /* speckles */
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background:
-    radial-gradient(circle at 22% 30%, rgba(80, 70, 55, 0.08) 0 2px, transparent 3px),
-    radial-gradient(circle at 68% 55%, rgba(80, 70, 55, 0.06) 0 1.5px, transparent 2px),
-    radial-gradient(circle at 44% 78%, rgba(80, 70, 55, 0.05) 0 1px, transparent 2px),
-    radial-gradient(circle at 80% 20%, rgba(80, 70, 55, 0.07) 0 1.5px, transparent 2px);
-  mix-blend-mode: multiply;
-  opacity: 0.9;
-}
-
-.egg-shell::after {
-  /* lime seam */
-  content: "";
-  position: absolute;
-  top: 2%;
-  bottom: 2%;
-  left: 50%;
-  width: 3px;
-  transform: translateX(-50%);
-  background: linear-gradient(
-    180deg,
-    transparent 0%,
-    var(--lime) 10%,
-    var(--lime) 90%,
-    transparent 100%
-  );
-  border-radius: 999px;
-  box-shadow: 0 0 24px rgba(205, 255, 74, 0.6);
-}
-
-/* Variants used by Choose Your Egg */
-.egg-shell.alt-smoke {
-  background:
-    radial-gradient(ellipse 70% 100% at 35% 25%, #e9e9e9 0%, #d2d2d2 35%, #a8a8a8 72%, #777 100%);
-}
-.egg-shell.alt-ink {
-  background:
-    radial-gradient(ellipse 70% 100% at 35% 25%, #4a4a4a 0%, #2a2a2a 40%, #0d0d0d 80%);
-}
-.egg-shell.alt-ink::after,
-.egg-shell.alt-lime::after {
-  box-shadow: 0 0 32px rgba(205, 255, 74, 0.8);
-}
-.egg-shell.alt-lime {
-  background:
-    radial-gradient(ellipse 70% 100% at 35% 25%, #faffd4 0%, #e0f58a 40%, #a9c849 80%);
-}
-.egg-shell.alt-blush {
-  background:
-    radial-gradient(ellipse 70% 100% at 35% 25%, #fff2ec 0%, #f3d0c0 40%, #c99383 80%);
-}
-
-/* Ruler marks around the egg (ascii-tick style) */
-.rulers {
-  position: absolute;
-  inset: -24px;
-  pointer-events: none;
-}
-
-/* Label pins used in /eggs reference */
-.pin {
-  font-family: var(--font-mono, "SF Mono"), ui-monospace, monospace;
-  font-size: 10px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--ink);
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-}
-.pin::before,
-.pin.right::after {
-  content: "";
-  width: 48px;
-  height: 1px;
-  background: var(--ink);
-}
-.pin.right::before {
-  display: none;
-}
 
 /* --- Progress / meters --------------------------------------------------- */
 
@@ -356,11 +257,25 @@ input::placeholder {
 }
 .ticks > span {
   height: 10px;
-  background: var(--hair);
+  background: var(--hair-soft);
   display: block;
 }
 .ticks > span.on {
   background: var(--ink);
+}
+
+/* soft radial halo under the hero egg so it reads against the canvas */
+.egg-halo {
+  position: absolute;
+  inset: -40px;
+  background: radial-gradient(
+    circle at 50% 60%,
+    rgba(205, 255, 74, 0.15) 0%,
+    transparent 60%
+  );
+  filter: blur(20px);
+  pointer-events: none;
+  z-index: -1;
 }
 
 /* --- Preset chips -------------------------------------------------------- */
