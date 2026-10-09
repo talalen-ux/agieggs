@@ -6,6 +6,7 @@ import { Egg, preloadEgg } from "@/components/Egg";
 import { EGG_CATALOG, FAMILY_LABEL } from "@/lib/eggs";
 import { useGame } from "@/components/StateProvider";
 import { STAGE_USD_THRESHOLD } from "@/lib/types";
+import { HowItWorksMotion } from "@/components/HowItWorksMotion";
 
 /** The egg featured in the hero. One, chosen for presence. */
 const HERO = "stn-geode";
@@ -206,27 +207,17 @@ export default function LandingPage() {
       </section>
 
       {/* ======================================================
-       *  Section 3 — How it works
+       *  Section 3 — How it works (motion graphic)
        * ====================================================== */}
       <section
         id="how"
         className="pad-x max-shell section rule"
         aria-labelledby="how-heading"
       >
-        <h2 id="how-heading" className="h-section mb-16 max-w-lg">
+        <h2 id="how-heading" className="h-section mb-10 max-w-lg">
           How it works
         </h2>
-        <ol className="grid md:grid-cols-3 gap-10 md:gap-12">
-          {STEPS.map((s, i) => (
-            <li key={i}>
-              <div className="mono text-[12px] text-ink-faint">
-                {String(i + 1).padStart(2, "0")}
-              </div>
-              <div className="h-sub mt-3">{s.title}</div>
-              <p className="body-mute mt-3">{s.body}</p>
-            </li>
-          ))}
-        </ol>
+        <HowItWorksMotion />
       </section>
 
       {/* ======================================================
@@ -330,17 +321,3 @@ function ArrowRight() {
   );
 }
 
-const STEPS = [
-  {
-    title: "Choose an egg",
-    body: "Pick a shell from the collection. The id of the shell you pick seeds what hatches.",
-  },
-  {
-    title: "Meet the holding requirement",
-    body: `Hold at least $${STAGE_USD_THRESHOLD.hatchling} of AGI. Egg fragments accrue only while you remain in band.`,
-  },
-  {
-    title: "Collect fragments",
-    body: "Fragments are soulbound; they cannot be bought or transferred. One fragment hatches one egg.",
-  },
-];
