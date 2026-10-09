@@ -19,13 +19,13 @@ export default function ChatPage() {
     }
   }, [pet?.conversation.length]);
 
-  if (!state) return <div className="container-pad">loading…</div>;
+  if (!state) return <div className="pad-x py-20 body-mute">Loading…</div>;
 
   if (!pet) {
     return (
-      <section className="full-bleed max-w-[1400px] w-full mx-auto pt-10">
-        <div className="eyebrow mb-5">05 / Chat</div>
-        <h1 className="display display-lg">Nothing to talk to.</h1>
+      <section className="pad-x max-shell section-sm">
+        <div className="eyebrow-mute mb-4">Chat</div>
+        <h1 className="h-section">Nothing to talk to.</h1>
         <p className="text-ink-mute mt-5">Hatch an egg first.</p>
         <Link href="/eggs" className="btn btn-primary btn-xl mt-6">
           Go to Egg Chamber
@@ -48,15 +48,15 @@ export default function ChatPage() {
   }
 
   return (
-    <section className="full-bleed max-w-[1400px] w-full mx-auto pt-6 pb-10">
-      <div className="eyebrow mb-6">05 / Chat</div>
+    <section className="pad-x max-shell section-sm">
+      <div className="eyebrow-mute mb-4">Chat</div>
 
       <div className="grid lg:grid-cols-[320px_1fr] gap-6 min-h-[72vh]">
         <aside className="card p-6 h-fit lg:sticky lg:top-24">
           <div className="flex flex-col items-center gap-5">
             <Pet3D pet={pet} size={180} />
             <div className="text-center">
-              <div className="display text-[22px] font-semibold tracking-tightest">
+              <div className="text-[20px] font-semibold tracking-tight">
                 {pet.name}
               </div>
               <div className="eyebrow-mute mt-1">
@@ -68,7 +68,7 @@ export default function ChatPage() {
                 </div>
               )}
             </div>
-            <div className="hairline w-full pt-4 text-[12px] text-ink-mute leading-relaxed">
+            <div className="rule w-full pt-4 text-[12px] text-ink-mute leading-relaxed">
               Personality seeded at egg. Memory persists across sessions.
               Responses throttle in degraded mode.
             </div>
@@ -92,7 +92,7 @@ export default function ChatPage() {
           </div>
           <form
             onSubmit={send}
-            className="hairline p-3 flex gap-2 bg-canvas/60"
+            className="rule p-3 flex gap-2 bg-surface-soft/60"
           >
             <input
               value={input}

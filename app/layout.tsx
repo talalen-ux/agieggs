@@ -4,9 +4,9 @@ import { Nav } from "@/components/Nav";
 import { StateProvider } from "@/components/StateProvider";
 
 export const metadata: Metadata = {
-  title: "AGI.Pets — intelligence, scarce by commitment",
+  title: "AGI.Pets — a new form of life",
   description:
-    "A living AI companion protocol. 100,000,000 AGI. 5,000 pets. Ever.",
+    "Choose an egg. Hold within your band. Collect fragments toward hatching. 100,000,000 AGI, 5,000 pets ever.",
 };
 
 export default function RootLayout({
@@ -16,18 +16,32 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="min-h-screen flex flex-col font-sans">
+      <body className="min-h-screen flex flex-col font-sans antialiased">
         <StateProvider>
           <Nav />
           <main className="flex-1 w-full">{children}</main>
-          <footer className="full-bleed max-w-[1400px] w-full mx-auto py-6">
-            <div className="hairline pt-5 flex flex-wrap items-center justify-between gap-3 eyebrow-mute">
-              <span>AGI.Pets · fixed 100,000,000 AGI · hard-cap 5,000 pets</span>
-              <span>v0.1 · MVP</span>
-            </div>
-          </footer>
+          <Footer />
         </StateProvider>
       </body>
     </html>
+  );
+}
+
+function Footer() {
+  return (
+    <footer className="rule mt-24 py-10 pad-x max-shell w-full">
+      <div className="flex flex-wrap items-center justify-between gap-4 text-[13px] text-ink-mute">
+        <div className="flex items-center gap-2">
+          <span className="font-semibold text-ink">AGI.Pets</span>
+          <span>·</span>
+          <span>100,000,000 AGI · 5,000 pets ever</span>
+        </div>
+        <div className="flex items-center gap-6">
+          <a href="/choose" className="hover:text-ink">Discover</a>
+          <a href="/#how" className="hover:text-ink">How it works</a>
+          <a href="/eggs" className="hover:text-ink">App</a>
+        </div>
+      </div>
+    </footer>
   );
 }

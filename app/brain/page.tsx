@@ -8,13 +8,13 @@ import { STAGE_SKILLS } from "@/lib/types";
 
 export default function BrainPage() {
   const { state } = useGame();
-  if (!state) return <div className="container-pad">loading…</div>;
+  if (!state) return <div className="pad-x py-20 body-mute">Loading…</div>;
   const pet = state.pets[0];
   if (!pet) {
     return (
-      <section className="full-bleed max-w-[1400px] w-full mx-auto pt-10">
+      <section className="pad-x max-shell section-sm">
         <div className="eyebrow mb-5">04 / Intelligence panel</div>
-        <h1 className="display display-lg">No brain to inspect.</h1>
+        <h1 className="h-section">No brain to inspect.</h1>
         <Link href="/eggs" className="btn btn-primary btn-xl mt-8">
           Hatch a pet
         </Link>
@@ -28,14 +28,12 @@ export default function BrainPage() {
   const computeUsage = pet.degraded ? 0.15 : 0.3 + pet.intelligence / 1500;
 
   return (
-    <section className="full-bleed max-w-[1400px] w-full mx-auto pt-6 pb-20">
-      <div className="eyebrow mb-6">04 / Intelligence</div>
+    <section className="pad-x max-shell section-sm">
+      <div className="eyebrow-mute mb-4">Intelligence</div>
 
-      <header className="grid lg:grid-cols-[1.4fr_1fr] gap-10 items-end mb-14">
-        <h1 className="display display-xl">
-          {pet.name}'s <br /> inner <span className="bg-lime px-3">weather.</span>
-        </h1>
-        <p className="text-ink-mute text-[17px] leading-relaxed max-w-md">
+      <header className="mb-14">
+        <h1 className="h-section max-w-xl">{pet.name}'s inner weather</h1>
+        <p className="body-mute mt-5 max-w-md">
           Personality is seeded at the egg and drifts with use. Memory
           decays. Skills unlock with stage and throttle under degradation.
         </p>
@@ -95,7 +93,7 @@ export default function BrainPage() {
               );
             })}
           </div>
-          <div className="eyebrow-mute mt-5 hairline pt-4">
+          <div className="eyebrow-mute mt-5 rule pt-4">
             compute priority {Math.round(computeUsage * 100)}% · treasury{" "}
             {fmtAgi(state.supply.computeTreasury)}
           </div>

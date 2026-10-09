@@ -20,18 +20,16 @@ export default function EvolvePage() {
   const [busy, setBusy] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
 
-  if (!state) return <div className="container-pad">loading…</div>;
+  if (!state) return <div className="pad-x py-20 body-mute">Loading…</div>;
   const pet = state.pets[0];
 
   if (!pet) {
     return (
-      <section className="full-bleed max-w-[1400px] w-full mx-auto pt-10 pb-20">
-        <div className="eyebrow mb-5">03 / Evolution chamber</div>
-        <h1 className="display display-lg">
-          No pet to evolve <br /> <span className="text-ink-mute">yet.</span>
-        </h1>
-        <p className="text-ink-mute mt-6 max-w-md">
-          Open the Egg Chamber, commit AGI, and hatch a pet first.
+      <section className="pad-x max-shell section-sm">
+        <div className="eyebrow-mute mb-4">Evolution</div>
+        <h1 className="h-section">No pet to evolve yet.</h1>
+        <p className="body-mute mt-5 max-w-md">
+          Open the chamber, commit AGI, and hatch a pet first.
         </p>
         <Link href="/eggs" className="btn btn-primary btn-xl mt-8">
           Go to Egg Chamber
@@ -67,18 +65,16 @@ export default function EvolvePage() {
   }
 
   return (
-    <section className="full-bleed max-w-[1400px] w-full mx-auto pt-6 pb-20">
-      <div className="eyebrow mb-6">03 / Evolution chamber</div>
+    <section className="pad-x max-shell section-sm">
+      <div className="eyebrow-mute mb-4">Evolution</div>
 
-      <header className="grid lg:grid-cols-[1.3fr_1fr] gap-10 items-end mb-14">
-        <h1 className="display display-xl">
-          {ns ? `${pet.name}` : `${pet.name} reached`} <br />
-          <span className="bg-lime px-3">
-            {ns ? ns.toUpperCase() : "AGI"}
-          </span>
-          {ns ? "." : ""}
+      <header className="mb-14 max-w-2xl">
+        <h1 className="h-section">
+          {ns
+            ? `${pet.name} is becoming ${ns}.`
+            : `${pet.name} has reached AGI.`}
         </h1>
-        <p className="text-ink-mute text-[17px] leading-relaxed max-w-md">
+        <p className="body-mute mt-5 max-w-md">
           Four stages up to AGI. Each one unlocks new skills; falling out of
           band dims them. Training burns AGI into the compute treasury.
         </p>
@@ -89,7 +85,7 @@ export default function EvolvePage() {
         <div className="card p-10 flex flex-col items-center gap-6">
           <Pet3D pet={pet} size={260} />
           <div className="text-center">
-            <div className="display text-[28px] font-semibold tracking-tightest">
+            <div className="text-[28px] font-semibold tracking-tight">
               {pet.name}
             </div>
             <div className="eyebrow-mute mt-1">
@@ -107,7 +103,7 @@ export default function EvolvePage() {
         <div className="space-y-8">
           <div className="card p-6">
             <div className="eyebrow-mute">commitment band</div>
-            <div className="display text-[32px] font-semibold tracking-tightest mt-2 mb-4">
+            <div className="text-[32px] font-semibold tracking-tight mt-2 mb-4">
               {fmtUsd(usd)}
               {ns && (
                 <span className="text-ink-mute text-[16px] font-normal ml-2">
@@ -125,7 +121,7 @@ export default function EvolvePage() {
 
           <div className="card p-6">
             <div className="eyebrow-mute">experience</div>
-            <div className="display text-[32px] font-semibold tracking-tightest mt-2 mb-4">
+            <div className="text-[32px] font-semibold tracking-tight mt-2 mb-4">
               {pet.experience}
               <span className="text-ink-mute text-[16px] font-normal ml-2">
                 / {xpReq} XP
@@ -163,7 +159,7 @@ export default function EvolvePage() {
       </div>
 
       {/* Stage tree */}
-      <div className="hairline mt-16 pt-10">
+      <div className="rule mt-16 pt-10">
         <div className="eyebrow mb-5">Stage tree</div>
         <div className="grid grid-cols-2 lg:grid-cols-5 gap-4">
           {STAGE_ORDER.map((s) => {
@@ -183,7 +179,7 @@ export default function EvolvePage() {
                     <span className="w-2 h-2 rounded-full bg-lime" />
                   )}
                 </div>
-                <div className="display text-[24px] font-semibold tracking-tightest mt-2">
+                <div className="text-[24px] font-semibold tracking-tight mt-2">
                   ${STAGE_USD_THRESHOLD[s].toLocaleString()}
                 </div>
                 <div className="flex flex-wrap gap-1 mt-3 min-h-[44px]">

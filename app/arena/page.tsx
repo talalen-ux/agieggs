@@ -9,7 +9,7 @@ export default function ArenaPage() {
   const { state, call } = useGame();
   const [busy, setBusy] = useState<string | null>(null);
   const [outcome, setOutcome] = useState<string | null>(null);
-  if (!state) return <div className="container-pad">loading…</div>;
+  if (!state) return <div className="pad-x py-20 body-mute">Loading…</div>;
   const pet = state.pets[0];
 
   async function spar(opp: PublicPet) {
@@ -35,17 +35,14 @@ export default function ArenaPage() {
   const sorted = [...state.others].sort((a, b) => b.intelligence - a.intelligence);
 
   return (
-    <section className="full-bleed max-w-[1400px] w-full mx-auto pt-6 pb-20">
-      <div className="eyebrow mb-6">06 / Social Arena</div>
+    <section className="pad-x max-shell section-sm">
+      <div className="eyebrow-mute mb-4">Arena</div>
 
-      <header className="grid lg:grid-cols-[1.4fr_1fr] gap-10 items-end mb-14">
-        <h1 className="display display-xl">
-          Where pets <br />
-          meet <span className="bg-lime px-3">pets.</span>
-        </h1>
-        <p className="text-ink-mute text-[17px] leading-relaxed max-w-md">
-          AGI-stage pets form DAOs, collaborate, compete. Spar for XP —
-          outcome scales with intelligence delta and a touch of fortune.
+      <header className="mb-14 max-w-2xl">
+        <h1 className="h-section">Where pets meet pets.</h1>
+        <p className="body-mute mt-5 max-w-md">
+          AGI-stage pets collaborate and compete. Spar for XP — the outcome
+          scales with intelligence delta and a touch of fortune.
         </p>
       </header>
 
@@ -79,7 +76,7 @@ export default function ArenaPage() {
                 }}
               />
               <div className="flex-1">
-                <div className="display text-[20px] font-semibold tracking-tightest">
+                <div className="text-[20px] font-semibold tracking-tight">
                   {o.name}
                 </div>
                 <div className="eyebrow-mute mt-0.5">
@@ -90,7 +87,7 @@ export default function ArenaPage() {
             <p className="text-[13px] text-ink-mute leading-relaxed min-h-[42px]">
               {o.flavor}
             </p>
-            <div className="hairline pt-4 flex items-center justify-between">
+            <div className="rule pt-4 flex items-center justify-between">
               <div className="eyebrow-mute">{o.ownerHandle}</div>
               <button
                 className="btn"

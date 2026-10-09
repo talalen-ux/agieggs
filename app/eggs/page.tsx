@@ -9,8 +9,7 @@ import { fmtUsd } from "@/lib/format";
 import { STAGE_USD_THRESHOLD } from "@/lib/types";
 
 const PRESETS = [25, 50, 100];
-// A quiet rotating "hero" egg at the center of the chamber. Just cosmetic.
-const CHAMBER_EGGS = ["aqua-stripe", "aqua-droplet", "hex-vial", "fan-cloud"] as const;
+const HERO_IDS = ["stn-geode", "wd-maple", "aqua-shard", "hex-dome"] as const;
 
 export default function EggChamberPage() {
   const { state, call } = useGame();
@@ -22,90 +21,61 @@ export default function EggChamberPage() {
   const [msg, setMsg] = useState<string | null>(null);
 
   const amount = preset === "custom" ? custom : preset;
-  const heroEgg = useMemo(
-    () =>
-      EGG_CATALOG.find(
-        (e) => e.id === CHAMBER_EGGS[Math.floor(Date.now() / 60000) % CHAMBER_EGGS.length],
-      ) ?? EGG_CATALOG[0],
-    [],
-  );
+  const hero = useMemo(() => {
+    const id = HERO_IDS[Math.floor(Date.now() / 60_000) % HERO_IDS.length];
+    return EGG_CATALOG.find((e) => e.id === id)!;
+  }, []);
 
-  if (!state) return <div className="container-pad">loading…</div>;
+  if (!state) return <div className="pad-x py-20 body-mute">Loading…</div>;
 
   const usdHeld = state.wallet.agi * state.supply.agiPriceUsd;
   const inBand = usdHeld >= STAGE_USD_THRESHOLD.hatchling;
-  const eggs = state.wallet.eggs;
-  const progress = Math.min(1, eggs);
+  const fragments = state.wallet.eggs;
+  const progress = Math.min(1, fragments);
 
   async function buy() {
     setBusy("buy");
     setMsg(null);
     const r = await call("/api/buy", { usd: amount });
-    if (!r.ok) setMsg(r.error ?? "failed");
-    else setMsg(`Committed ${fmtUsd(amount)} to the chamber.`);
+    if (!r.ok) setMsg(r.error ?? "Failed.");
+    else setMsg(`Committed ${fmtUsd(amount)}.`);
     setBusy(null);
   }
   async function sell() {
     setBusy("sell");
     setMsg(null);
     const r = await call("/api/sell", { agi: sellAgi });
-    if (!r.ok) setMsg(r.error ?? "failed");
+    if (!r.ok) setMsg(r.error ?? "Failed.");
     setBusy(null);
   }
 
   return (
-    <section className="full-bleed max-w-[1400px] w-full mx-auto pt-6 pb-20">
-      <div className="eyebrow mb-6">01 / Egg Chamber</div>
+    <section className="pad-x max-shell section-sm">
+      <header className="mb-16">
+        <div className="eyebrow-mute mb-4">Chamber</div>
+        <h1 className="h-section max-w-xl">Commit AGI. Accrue fragments.</h1>
+        <p className="body-mute mt-5 max-w-md">
+          Fragments accrue only while your holdings sit at or above the band.
+          One fragment hatches one egg.
+        </p>
+      </header>
 
-      <div className="grid lg:grid-cols-[1.1fr_1fr_1fr] gap-10 items-start min-h-[70vh]">
-        {/* Headline */}
-        <div className="pt-4 lg:pt-6">
-          <h1 className="display display-xl">
-            Life <br />
-            starts with <br />
-            <span className="relative inline-block">
-              commitment
-              <svg
-                aria-hidden
-                viewBox="0 0 320 18"
-                className="absolute left-0 -bottom-2 w-full"
-              >
-                <path
-                  d="M2 14 C 80 2, 240 2, 318 14"
-                  stroke="#CDFF4A"
-                  strokeWidth="6"
-                  fill="none"
-                  strokeLinecap="round"
-                />
-              </svg>
-            </span>
-            <span>.</span>
-          </h1>
-          <p className="mt-8 text-ink-mute max-w-sm leading-relaxed">
-            Hold AGI within your band. Collect fragments. Reach 1.0 to
-            become eligible to hatch.
-          </p>
-        </div>
-
-        {/* Center egg */}
-        <div className="flex items-center justify-center min-h-[480px]">
-          <Egg egg={heroEgg} size={360} float />
-        </div>
-
-        {/* Buy / withdraw */}
-        <div className="card p-6 lg:p-7">
-          <div className="flex items-center justify-between hairline-b pb-4 mb-5">
-            <h3 className="display text-[22px] font-semibold tracking-tightest">
-              Start your chamber
-            </h3>
+      <div className="grid lg:grid-cols-[1fr_1fr] gap-16 items-start">
+        {/* --- Hero egg -------------------------------------------- */}
+        <div className="flex flex-col items-center lg:items-start">
+          <Egg egg={hero} size={360} drift />
+          <div className="mt-8 eyebrow-mute">
+            Dormant · fragment {fragments.toFixed(2)} / 1.00
           </div>
+          <div className="mt-3 w-full max-w-sm meter">
+            <span style={{ width: `${progress * 100}%` }} />
+          </div>
+        </div>
 
-          <div className="flex gap-6 mb-6 hairline-b pb-4">
-            <TabBtn
-              active={tab === "buy"}
-              onClick={() => setTab("buy")}
-              label="Buy AGI"
-            />
+        {/* --- Buy / Withdraw ------------------------------------- */}
+        <div>
+          <div className="flex gap-8 rule-b pb-3 mb-6">
+            <TabBtn active={tab === "buy"} onClick={() => setTab("buy")} label="Buy AGI" />
             <TabBtn
               active={tab === "withdraw"}
               onClick={() => setTab("withdraw")}
@@ -116,14 +86,14 @@ export default function EggChamberPage() {
           {tab === "buy" ? (
             <>
               <div className="eyebrow-mute mb-2">You pay</div>
-              <div className="flex items-end gap-3 mb-5">
-                <div className="display text-[56px] font-semibold leading-none">
+              <div className="flex items-end gap-3 mb-6">
+                <div className="text-[48px] font-semibold leading-none">
                   ${preset === "custom" ? custom : preset}
                 </div>
                 <div className="eyebrow-mute pb-2">USD</div>
               </div>
 
-              <div className="grid grid-cols-4 gap-2 mb-5">
+              <div className="flex gap-2 flex-wrap mb-6">
                 {PRESETS.map((p) => (
                   <button
                     key={p}
@@ -148,37 +118,33 @@ export default function EggChamberPage() {
                   max={100_000}
                   value={custom}
                   onChange={(e) => setCustom(Number(e.target.value))}
-                  className="mb-5"
-                  placeholder="USD"
+                  className="mb-6"
+                  placeholder="USD amount"
                 />
               )}
 
-              <div className="hairline py-3 flex items-center justify-between text-[14px]">
-                <span className="text-ink-mute">AGI price</span>
-                <span className="mono">{fmtUsd(state.supply.agiPriceUsd)}</span>
-              </div>
-              <div className="hairline py-3 flex items-center justify-between text-[14px]">
-                <span className="text-ink-mute">Compute treasury</span>
-                <span className="mono">2.5% of purchase</span>
-              </div>
+              <dl className="text-[14px] mb-8">
+                <Row k="AGI price" v={fmtUsd(state.supply.agiPriceUsd)} />
+                <Row k="Compute treasury" v="2.5% of purchase" />
+              </dl>
 
               <button
-                className="btn btn-primary btn-xl w-full justify-between mt-4"
+                className="btn btn-primary btn-xl w-full justify-between"
                 disabled={busy !== null || amount <= 0}
                 onClick={buy}
               >
                 <span>{busy === "buy" ? "Signing…" : "Buy AGI"}</span>
                 <Arrow />
               </button>
-              <div className="eyebrow-mute mt-3">
-                Hold at least {fmtUsd(STAGE_USD_THRESHOLD.hatchling)} to
-                begin accruing.
-              </div>
+              <p className="eyebrow-mute mt-4">
+                Hold at least {fmtUsd(STAGE_USD_THRESHOLD.hatchling)} to begin
+                accruing.
+              </p>
             </>
           ) : (
             <>
               <div className="eyebrow-mute mb-2">You withdraw</div>
-              <div className="display text-[56px] font-semibold leading-none mb-5">
+              <div className="text-[48px] font-semibold leading-none mb-6">
                 {sellAgi.toLocaleString()}
                 <span className="text-[18px] text-ink-mute ml-2 mono">AGI</span>
               </div>
@@ -189,20 +155,14 @@ export default function EggChamberPage() {
                 value={sellAgi}
                 onChange={(e) => setSellAgi(Number(e.target.value))}
                 placeholder="AGI amount"
-                className="mb-5"
+                className="mb-6"
               />
-              <div className="hairline py-3 flex items-center justify-between text-[14px]">
-                <span className="text-ink-mute">Returns</span>
-                <span className="mono">
-                  {fmtUsd(sellAgi * state.supply.agiPriceUsd)}
-                </span>
-              </div>
-              <div className="hairline py-3 flex items-center justify-between text-[14px]">
-                <span className="text-ink-mute">Tax</span>
-                <span className="mono">2.5%</span>
-              </div>
+              <dl className="text-[14px] mb-8">
+                <Row k="Returns" v={fmtUsd(sellAgi * state.supply.agiPriceUsd)} />
+                <Row k="Tax" v="2.5%" />
+              </dl>
               <button
-                className="btn btn-primary btn-xl w-full justify-between mt-4"
+                className="btn btn-primary btn-xl w-full justify-between"
                 disabled={
                   busy !== null || sellAgi <= 0 || sellAgi > state.wallet.agi
                 }
@@ -211,64 +171,42 @@ export default function EggChamberPage() {
                 <span>{busy === "sell" ? "Signing…" : "Withdraw"}</span>
                 <Arrow />
               </button>
-              <div className="eyebrow-mute mt-3 text-ink">
+              <p className="eyebrow-mute mt-4">
                 Dropping below your band degrades your pet.
-              </div>
+              </p>
             </>
           )}
 
-          {msg && <div className="mt-4 text-[13px] text-ink-mute">{msg}</div>}
+          {msg && <div className="mt-4 body-mute text-[13px]">{msg}</div>}
         </div>
       </div>
 
-      {/* progress */}
-      <div className="hairline mt-14 pt-8 grid lg:grid-cols-[auto_1fr_auto] items-center gap-8">
+      {/* --- CTA + progress bar ------------------------------------ */}
+      <div className="rule mt-24 pt-10 flex items-center justify-between gap-6 flex-wrap">
         <div>
-          <div className="display text-[56px] font-semibold leading-none">
-            {eggs.toFixed(2)}
-            <span className="text-ink-mute text-[16px] font-normal ml-3">
-              / 1.00 fragments
-            </span>
+          <div className="eyebrow-mute">Status</div>
+          <div className="text-[22px] font-semibold mt-1">
+            {inBand ? "In band · accruing" : "Below band · dormant"}
           </div>
-          <div className="eyebrow-mute mt-2">
-            {inBand ? "accruing in-band" : "dormant — need $25 held to accrue"}
-          </div>
-        </div>
-        <div className="flex items-center gap-5">
-          <div className="meter flex-1">
-            <span style={{ width: `${progress * 100}%` }} />
-          </div>
-          <span className="mono text-ink">{Math.round(progress * 100)}%</span>
         </div>
         <Link
           href="/choose"
-          className={`btn btn-xl ${eggs >= 1 ? "btn-lime" : ""}`}
+          className={fragments >= 1 ? "btn btn-primary" : "btn"}
         >
-          {eggs >= 1 ? "Choose your egg" : "Hatch egg"}
+          {fragments >= 1 ? "Choose your egg" : "Browse eggs"}
           <Arrow />
         </Link>
       </div>
-
-      <div className="hairline mt-10 pt-6 grid grid-cols-2 lg:grid-cols-4 gap-8">
-        <FooterStat k="Fixed supply" v="100M" sub="AGI" />
-        <FooterStat
-          k="Maximum pets"
-          v={state.supply.petCap.toLocaleString()}
-          sub="ever"
-        />
-        <FooterStat
-          k="Minimum held"
-          v={`$${STAGE_USD_THRESHOLD.hatchling}`}
-          sub="to accrue"
-        />
-        <div>
-          <div className="eyebrow-mute">Warning</div>
-          <div className="mt-2 text-[13px] leading-relaxed text-ink-mute">
-            Dropping below your band degrades your pet.
-          </div>
-        </div>
-      </div>
     </section>
+  );
+}
+
+function Row({ k, v }: { k: string; v: string }) {
+  return (
+    <div className="flex items-center justify-between py-2 rule-b last:border-0">
+      <dt className="text-ink-mute">{k}</dt>
+      <dd className="mono">{v}</dd>
+    </div>
   );
 }
 
@@ -284,7 +222,7 @@ function TabBtn({
   return (
     <button
       onClick={onClick}
-      className={`pb-1 text-[15px] font-semibold tracking-tightest transition-colors ${
+      className={`pb-2 text-[14px] font-semibold transition-colors ${
         active ? "text-ink border-b-2 border-ink" : "text-ink-mute"
       }`}
     >
@@ -293,26 +231,13 @@ function TabBtn({
   );
 }
 
-function FooterStat({ k, v, sub }: { k: string; v: string; sub: string }) {
-  return (
-    <div>
-      <div className="display text-[clamp(28px,3vw,42px)] font-semibold tracking-tightest">
-        {v}
-      </div>
-      <div className="eyebrow-mute mt-1">
-        {k} · {sub}
-      </div>
-    </div>
-  );
-}
-
 function Arrow() {
   return (
-    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
       <path
-        d="M3 13 L13 3 M6 3 H13 V10"
+        d="M2 11 L11 2 M5 2 H11 V8"
         stroke="currentColor"
-        strokeWidth="1.5"
+        strokeWidth="1.4"
         strokeLinecap="round"
       />
     </svg>
