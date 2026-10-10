@@ -99,7 +99,7 @@ export function HowItWorksMotion({
       ref={ref}
       className="hiw-stage"
       data-state={state}
-      aria-label="How it works, animated: choose an egg, meet the holding requirement, collect fragments"
+      aria-label="How it works, animated: choose an egg, hold enough AGI to hatch, earn AGI you can convert to credits"
     >
       {/* --- Act 01 : Choose an egg --------------------------------- */}
       <div className="act act-1">
@@ -144,13 +144,13 @@ export function HowItWorksMotion({
               <circle cx="420" cy="240" r="6" fill="#0A0A0A" opacity="0.25" />
             </g>
           </svg>
-          <div className="band-label mono">band · $25</div>
+          <div className="band-label mono">hold · $25</div>
           <div className="band-value mono">$25.00</div>
         </div>
-        <Caption n="02" title="Meet the holding requirement" />
+        <Caption n="02" title="Hold enough to hatch" />
       </div>
 
-      {/* --- Act 03 : Fragments ------------------------------------ */}
+      {/* --- Act 03 : Earn AGI → convert to credits ---------------- */}
       <div className="act act-3">
         <div className="fragments-stage">
           <Egg egg={SELECTED} size={140} className="act3-egg" />
@@ -163,33 +163,33 @@ export function HowItWorksMotion({
             <span className="p p6" />
           </div>
           <div className="counter mono">
-            <span className="n n0">0.00</span>
-            <span className="n n25">0.25</span>
-            <span className="n n50">0.50</span>
-            <span className="n n75">0.75</span>
-            <span className="n n100">1.00</span>
+            <span className="n n0">+0.00</span>
+            <span className="n n25">+2.50</span>
+            <span className="n n50">+5.00</span>
+            <span className="n n75">+7.50</span>
+            <span className="n n100">100 cr</span>
           </div>
-          <div className="counter-sub eyebrow-mute">fragments</div>
+          <div className="counter-sub eyebrow-mute">AGI → credits</div>
         </div>
-        <Caption n="03" title="Collect fragments" />
+        <Caption n="03" title="Earn AGI, convert to credits" />
       </div>
 
       {/* --- End frame : static triptych --------------------------- */}
       <div className="end-frame">
         <EndStep
           n="01"
-          title="Choose an egg"
+          title="Choose a shell"
           egg={END_LEFT}
           seam={{ right: true }}
         />
         <EndStep
           n="02"
-          title="Hold at least $25"
+          title="Hold & hatch"
           egg={END_CENTER}
           seam={{ right: true }}
           midRule
         />
-        <EndStep n="03" title="Collect fragments" egg={END_RIGHT} frag />
+        <EndStep n="03" title="Earn & convert" egg={END_RIGHT} frag />
       </div>
 
       <style jsx>{`

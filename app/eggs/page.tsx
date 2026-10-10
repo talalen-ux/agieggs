@@ -11,7 +11,7 @@ import {
 } from "@/lib/eggs";
 import { useGame } from "@/components/StateProvider";
 import { fmtUsd } from "@/lib/format";
-import { STAGE_USD_THRESHOLD } from "@/lib/types";
+import { CREDIT_RATE, HATCH_HOLDINGS_USD } from "@/lib/economics";
 
 const PRESETS = [25, 50, 100];
 const DEFAULT_EGG = "cr-emerald";
@@ -32,6 +32,7 @@ function ChamberInner() {
   const [preset, setPreset] = useState<number | "custom">(50);
   const [custom, setCustom] = useState<number>(50);
   const [sellAgi, setSellAgi] = useState<number>(0);
+  const [convertAmount, setConvertAmount] = useState<number>(0);
   const [busy, setBusy] = useState<string | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
   const [opening, setOpening] = useState(false);
@@ -47,12 +48,12 @@ function ChamberInner() {
   if (!state) return <div className="pad-x py-20 body-mute">Loading…</div>;
 
   const usdHeld = state.wallet.agi * state.supply.agiPriceUsd;
-  const inBand = usdHeld >= STAGE_USD_THRESHOLD.hatchling;
-  const fragments = state.wallet.eggs;
-  const progress = Math.min(1, fragments);
-  const hasFragment = fragments >= 1;
+  const eligible = usdHeld >= HATCH_HOLDINGS_USD;
   const capped = state.supply.petsMinted >= state.supply.petCap;
-  const canHatch = hasFragment && inBand && !capped;
+  const alreadyHatched = state.pets.length > 0;
+  const canHatch = eligible && !capped && !alreadyHatched;
+
+  const needMoreUsd = Math.max(0, HATCH_HOLDINGS_USD - usdHeld);
 
   async function buy() {
     setBusy("buy");
@@ -75,7 +76,6 @@ function ChamberInner() {
     setErr(null);
     setOpening(true);
     try {
-      // Short opening motion (shell coming to life) before commit
       await new Promise((r) => setTimeout(r, 450));
       const r = await call("/api/hatch", { seed: `egg:${egg.id}` });
       if (!r.ok) {
@@ -91,6 +91,18 @@ function ChamberInner() {
       setBusy(null);
       setOpening(false);
     }
+  }
+  async function convert() {
+    if (convertAmount <= 0) return;
+    setBusy("convert");
+    setMsg(null);
+    const r = await call("/api/convert", { agi: convertAmount });
+    if (!r.ok) setMsg(r.error ?? "Failed.");
+    else {
+      setMsg(`Converted ${convertAmount.toFixed(2)} AGI → ${(convertAmount * CREDIT_RATE).toFixed(0)} credits.`);
+      setConvertAmount(0);
+    }
+    setBusy(null);
   }
 
   return (
@@ -115,53 +127,52 @@ function ChamberInner() {
           </div>
         </div>
 
-        {/* Verified attributes */}
+        {/* Attributes + Hatch */}
         <div>
           <dl className="grid grid-cols-2 gap-x-6 sm:gap-x-8 gap-y-6 max-w-md">
             <Attr k="Family" v={FAMILY_LABEL[egg.family]} />
             <Attr k="Theme" v={egg.theme} />
             <Attr k="Identifier" v={egg.id} mono />
-            <Attr k="Fragments to hatch" v="1" />
             <Attr
-              k="Holding minimum"
-              v={fmtUsd(STAGE_USD_THRESHOLD.hatchling)}
-            />
-            <Attr
-              k="Status"
-              v={inBand ? "In band" : "Below band"}
-              dot={inBand ? "ok" : "warn"}
+              k="To hatch"
+              v={`${fmtUsd(HATCH_HOLDINGS_USD)} held`}
             />
           </dl>
 
-          {/* Fragment progress — the step the Chamber primarily serves */}
+          {/* Holdings vs. requirement */}
           <div className="mt-10 max-w-md">
             <div className="flex items-end justify-between mb-2">
               <div>
-                <div className="eyebrow-mute">Your fragments</div>
+                <div className="eyebrow-mute">Your holdings</div>
                 <div className="mt-1">
                   <span className="text-[28px] font-semibold">
-                    {fragments.toFixed(2)}
+                    {fmtUsd(usdHeld)}
                   </span>
-                  <span className="ml-2 text-ink-mute">/ 1.00</span>
+                  <span className="ml-2 text-ink-mute">
+                    / {fmtUsd(HATCH_HOLDINGS_USD)}
+                  </span>
                 </div>
               </div>
               <span className="mono text-ink-mute text-[12px]">
-                {Math.round(progress * 100)}%
+                {Math.round(Math.min(1, usdHeld / HATCH_HOLDINGS_USD) * 100)}%
               </span>
             </div>
             <div className="meter">
-              <span style={{ width: `${progress * 100}%` }} />
+              <span
+                style={{
+                  width: `${Math.min(1, usdHeld / HATCH_HOLDINGS_USD) * 100}%`,
+                }}
+              />
             </div>
             <p className="eyebrow-mute mt-3">
-              {hasFragment
-                ? "Ready to hatch."
-                : inBand
-                  ? "Accruing in band."
-                  : "Need in-band holdings to accrue."}
+              {eligible
+                ? alreadyHatched
+                  ? "You already have a pet."
+                  : "Ready to hatch."
+                : `Buy ${fmtUsd(needMoreUsd)} more to be eligible.`}
             </p>
           </div>
 
-          {/* Hatch — the terminal action for this egg */}
           <div className="mt-10 flex items-start gap-5 flex-wrap">
             <button
               type="button"
@@ -177,15 +188,15 @@ function ChamberInner() {
                 <p className="body-mute text-[13px]">
                   {capped
                     ? "The protocol has reached its 5,000-pet cap."
-                    : !hasFragment
-                      ? "You need 1.00 fragments. Commit AGI below and let one fragment accrue."
-                      : `Hold at least ${fmtUsd(STAGE_USD_THRESHOLD.hatchling)} of AGI to be eligible.`}
+                    : alreadyHatched
+                      ? "You already have a pet. Visit the chat tab."
+                      : `Hold at least ${fmtUsd(HATCH_HOLDINGS_USD)} of AGI to be eligible.`}
                 </p>
               )}
               {canHatch && (
                 <p className="body-mute text-[13px]">
-                  Hatching uses one fragment and cannot be reversed. You'll
-                  meet your pet on the next screen.
+                  Hatching happens on-chain and cannot be reversed. You'll meet
+                  your pet on the next screen.
                 </p>
               )}
               {err && (
@@ -200,11 +211,7 @@ function ChamberInner() {
         {/* Buy / Withdraw card */}
         <div className="card p-6 lg:p-7 w-full">
           <div className="flex gap-6 rule-b pb-3 mb-6">
-            <TabBtn
-              active={tab === "buy"}
-              onClick={() => setTab("buy")}
-              label="Buy AGI"
-            />
+            <TabBtn active={tab === "buy"} onClick={() => setTab("buy")} label="Buy AGI" />
             <TabBtn
               active={tab === "withdraw"}
               onClick={() => setTab("withdraw")}
@@ -266,8 +273,7 @@ function ChamberInner() {
                 <Arrow />
               </button>
               <p className="eyebrow-mute mt-3">
-                Hold at least {fmtUsd(STAGE_USD_THRESHOLD.hatchling)} to begin
-                accruing.
+                Hold at least {fmtUsd(HATCH_HOLDINGS_USD)} to be eligible to hatch.
               </p>
             </>
           ) : (
@@ -309,6 +315,63 @@ function ChamberInner() {
           {msg && <div className="mt-4 body-mute text-[13px]">{msg}</div>}
         </div>
       </div>
+
+      {/* ---------- Earnings & Convert ---------- */}
+      {alreadyHatched && (
+        <div className="rule mt-16 pt-10 grid md:grid-cols-[1fr_auto] items-start gap-8">
+          <div className="max-w-md">
+            <div className="eyebrow-mute">Earned by your pet</div>
+            <div className="mt-2 flex items-end gap-6 flex-wrap">
+              <div>
+                <div className="text-[32px] font-semibold leading-none">
+                  {state.wallet.earnedAgi.toFixed(2)}
+                </div>
+                <div className="eyebrow-mute mt-1">AGI earned</div>
+              </div>
+              <div>
+                <div className="text-[32px] font-semibold leading-none">
+                  {Math.floor(state.wallet.credits).toLocaleString()}
+                </div>
+                <div className="eyebrow-mute mt-1">Credits</div>
+              </div>
+            </div>
+            <p className="body-mute text-[14px] mt-4">
+              Your pet earns AGI through chat, training, and arena. Convert
+              earnings to credits at {CREDIT_RATE}&times; the AGI rate.
+            </p>
+          </div>
+
+          <div className="flex items-end gap-2 w-full md:w-auto">
+            <div className="flex-1 md:w-56">
+              <label className="eyebrow-mute block mb-2">Convert AGI</label>
+              <input
+                type="number"
+                min={0}
+                max={state.wallet.earnedAgi}
+                step={0.1}
+                value={convertAmount}
+                onChange={(e) => setConvertAmount(Number(e.target.value))}
+                placeholder={state.wallet.earnedAgi.toFixed(2)}
+              />
+              <div className="eyebrow-mute mt-2">
+                = {(convertAmount * CREDIT_RATE).toFixed(0)} credits
+              </div>
+            </div>
+            <button
+              type="button"
+              className="btn btn-primary"
+              disabled={
+                busy !== null ||
+                convertAmount <= 0 ||
+                convertAmount > state.wallet.earnedAgi
+              }
+              onClick={convert}
+            >
+              {busy === "convert" ? "Converting…" : "Convert"}
+            </button>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
@@ -317,26 +380,15 @@ function Attr({
   k,
   v,
   mono,
-  dot,
 }: {
   k: string;
   v: string;
   mono?: boolean;
-  dot?: "ok" | "warn";
 }) {
   return (
     <div>
       <dt className="eyebrow-mute">{k}</dt>
-      <dd className={`mt-1 text-[16px] flex items-center gap-2 ${mono ? "mono" : ""}`}>
-        {dot && (
-          <span
-            className="inline-block w-1.5 h-1.5 rounded-full"
-            style={{ background: dot === "ok" ? "#CDFF4A" : "#0A0A0A" }}
-            aria-label={dot === "ok" ? "ok" : "warning"}
-          />
-        )}
-        {v}
-      </dd>
+      <dd className={`mt-1 text-[16px] ${mono ? "mono" : ""}`}>{v}</dd>
     </div>
   );
 }

@@ -70,14 +70,15 @@ export type ChatMessage = {
 };
 
 export type Wallet = {
-  // Held AGI tokens (the user's stake).
+  // Held AGI tokens (the user's committed stake).
   agi: number;
-  // Earned but unhatched eggs. Soulbound — non-transferable.
-  eggs: number;
-  // Cumulative AGI ever bought, used for egg accrual independent of current balance.
+  // AGI earned by the pet through chat / training / arena. Not held
+  // against the band — this is what gets converted to credits.
+  earnedAgi: number;
+  // Spendable credits derived from converted earnings.
+  credits: number;
+  // Cumulative AGI ever bought, kept for lifetime stats.
   lifetimeBuy: number;
-  // ms timestamp of last egg accrual tick.
-  lastAccrualAt: number;
 };
 
 export type GlobalSupply = {
@@ -122,11 +123,12 @@ export type GameEvent = {
   kind:
     | "buy"
     | "sell"
-    | "egg"
     | "hatch"
     | "evolve"
     | "degrade"
     | "restore"
+    | "earn"
+    | "convert"
     | "train"
     | "social";
   text: string;

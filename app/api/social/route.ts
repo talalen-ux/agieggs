@@ -1,9 +1,10 @@
 import { fail, mutate, ok, readJson } from "@/lib/api";
+import { EARN } from "@/lib/economics";
 
 export const dynamic = "force-dynamic";
 
-// "Send your pet to interact" — simulates the Social Arena. Cheap demo:
-// roll an outcome based on intelligence delta, mint an event, nudge XP.
+// Arena spar — roll outcome, award XP + AGI. Degraded pets still earn
+// but at a reduced rate (handled below).
 export async function POST(req: Request) {
   const body = await readJson(req);
   const petId = String(body.petId ?? "");
@@ -14,7 +15,6 @@ export async function POST(req: Request) {
     const { state, result } = await mutate((s) => {
       const pet = s.pets.find((p) => p.id === petId);
       if (!pet) throw new Error("Pet not found.");
-      if (pet.degraded) throw new Error("Degraded pets cannot enter the arena.");
       const opp = s.others.find((o) => o.id === opponentId);
       if (!opp) throw new Error("Opponent not found.");
 
@@ -24,16 +24,20 @@ export async function POST(req: Request) {
       const xp = won ? 35 : 12;
       pet.experience += xp;
 
+      const baseEarn = won ? EARN.arenaWin : EARN.arenaLoss;
+      const earned = baseEarn * (pet.degraded ? 0.25 : 1);
+      s.wallet.earnedAgi += earned;
+
       const text = won
-        ? `${pet.name} out-thought ${opp.name} (${opp.ownerHandle}). +${xp} XP.`
-        : `${pet.name} sparred with ${opp.name} and lost gracefully. +${xp} XP.`;
+        ? `${pet.name} out-thought ${opp.name} (${opp.ownerHandle}). +${xp} XP · +${earned.toFixed(2)} AGI.`
+        : `${pet.name} sparred with ${opp.name} and lost gracefully. +${xp} XP · +${earned.toFixed(2)} AGI.`;
       s.events.unshift({
         id: `evt_${Date.now()}_social`,
         ts: Date.now(),
         kind: "social",
         text,
       });
-      return { won, xp };
+      return { won, xp, earned };
     });
     return ok({ state, ...result });
   } catch (e) {

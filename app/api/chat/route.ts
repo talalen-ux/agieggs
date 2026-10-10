@@ -1,6 +1,7 @@
 import { fail, mutate, ok, readJson } from "@/lib/api";
 import { petReply } from "@/lib/ai";
 import { compressMemoryIfNeeded } from "@/lib/pet";
+import { EARN } from "@/lib/economics";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 30;
@@ -36,9 +37,15 @@ export async function POST(req: Request) {
         });
       }
       compressMemoryIfNeeded(pet);
-      return { reply: reply.text };
+
+      // Pet earns a tiny bit of AGI per chat turn. Degraded pets earn
+      // at 25% rate — mirrors the earn() helper from lib/economics.
+      const earned = EARN.chatTurn * (pet.degraded ? 0.25 : 1);
+      s.wallet.earnedAgi += earned;
+
+      return { reply: reply.text, earned };
     });
-    return ok({ state, reply: result.reply });
+    return ok({ state, reply: result.reply, earned: result.earned });
   } catch (e) {
     return fail((e as Error).message, 500);
   }

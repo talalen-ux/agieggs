@@ -68,9 +68,26 @@ export default function ChatPage() {
                 </div>
               )}
             </div>
-            <div className="rule w-full pt-4 text-[12px] text-ink-mute leading-relaxed">
-              Personality seeded at egg. Memory persists across sessions.
-              Responses throttle in degraded mode.
+            <div className="rule w-full pt-4 w-full">
+              <div className="eyebrow-mute">Earned by {pet.name}</div>
+              <div className="flex items-baseline justify-between mt-2">
+                <span className="text-[22px] font-semibold">
+                  {state.wallet.earnedAgi.toFixed(2)}
+                </span>
+                <span className="eyebrow-mute">AGI</span>
+              </div>
+              <div className="flex items-baseline justify-between mt-1">
+                <span className="text-[16px] font-semibold">
+                  {Math.floor(state.wallet.credits).toLocaleString()}
+                </span>
+                <span className="eyebrow-mute">Credits</span>
+              </div>
+              <Link
+                href="/eggs"
+                className="btn w-full mt-4 justify-center text-[13px]"
+              >
+                Convert in Chamber
+              </Link>
             </div>
           </div>
         </aside>

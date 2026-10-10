@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useGame } from "./StateProvider";
 
 const PUBLIC_PATHS = new Set(["/"]);
 const APP_PATHS = ["/choose", "/eggs", "/evolve", "/brain", "/chat", "/arena"];
@@ -114,23 +115,45 @@ export function Nav() {
 }
 
 function AppSubNav({ pathname }: { pathname: string }) {
+  const { state } = useGame();
+  const agi = Math.floor(state?.wallet.agi ?? 0);
+  const earned = state?.wallet.earnedAgi ?? 0;
+  const credits = Math.floor(state?.wallet.credits ?? 0);
+
   return (
     <div className="rule-b bg-surface-soft/60">
-      <nav className="pad-x max-shell flex gap-6 overflow-x-auto py-3">
-        {APP_LINKS.map((l) => {
-          const active = pathname.startsWith(l.href);
-          return (
-            <Link
-              key={l.href}
-              href={l.href}
-              className={`subnav-link ${active ? "active" : ""}`}
-            >
-              <span className="mark" />
-              {l.label}
-            </Link>
-          );
-        })}
-      </nav>
+      <div className="pad-x max-shell flex items-center justify-between gap-6 py-3">
+        <nav className="flex gap-6 overflow-x-auto">
+          {APP_LINKS.map((l) => {
+            const active = pathname.startsWith(l.href);
+            return (
+              <Link
+                key={l.href}
+                href={l.href}
+                className={`subnav-link ${active ? "active" : ""}`}
+              >
+                <span className="mark" />
+                {l.label}
+              </Link>
+            );
+          })}
+        </nav>
+
+        <div className="hidden md:flex items-center gap-6 text-[12px] mono whitespace-nowrap">
+          <Balance label="Held" value={agi.toLocaleString() + " AGI"} />
+          <Balance label="Earned" value={earned.toFixed(2) + " AGI"} />
+          <Balance label="Credits" value={credits.toLocaleString()} />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Balance({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex items-baseline gap-2">
+      <span className="eyebrow-mute">{label}</span>
+      <span className="text-ink">{value}</span>
     </div>
   );
 }

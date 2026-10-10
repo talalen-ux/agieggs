@@ -70,15 +70,13 @@ export function hatchEgg(
   state: GameState,
   chosenSeed?: string,
 ): { pet: Pet; events: GameEvent[] } {
-  if (state.wallet.eggs < 1) throw new Error("Not enough egg fragments.");
   if (state.supply.petsMinted >= state.supply.petCap)
     throw new Error("Pet cap reached. The protocol is sealed at 5,000.");
   if (holdingsUsd(state) < STAGE_USD_THRESHOLD.hatchling)
     throw new Error(
-      `Hatching requires at least $${STAGE_USD_THRESHOLD.hatchling} of committed AGI.`,
+      `Hatching requires at least $${STAGE_USD_THRESHOLD.hatchling} of held AGI.`,
     );
 
-  state.wallet.eggs -= 1;
   state.supply.petsMinted += 1;
   const id = `pet_${Date.now()}_${Math.floor(Math.random() * 1e6)}`;
   // If the user picked an egg from the Choose screen, we use its seed so
@@ -163,24 +161,22 @@ export function evolvePet(state: GameState, petId: string): GameEvent[] {
   ];
 }
 
+/** Train the pet. Awards XP + earns AGI into the owner's `earnedAgi` bucket. */
 export function trainPet(state: GameState, petId: string): GameEvent[] {
   const pet = state.pets.find((p) => p.id === petId);
   if (!pet) throw new Error("Pet not found.");
-  if (pet.degraded) throw new Error("Degraded pets cannot train.");
-  const cost = 10;
-  if (state.wallet.agi < cost)
-    throw new Error(`Training burns ${cost} AGI to compute treasury.`);
-  state.wallet.agi -= cost;
-  state.supply.computeTreasury += cost;
+  if (pet.degraded) throw new Error("Degraded pets train at a reduced rate — restore the band first.");
   const gained = 25 + Math.floor(Math.random() * 20);
   pet.experience += gained;
   pet.intelligence = Math.min(1000, pet.intelligence + Math.floor(gained / 4));
+  const earnAmount = 10; // flat earn per training cycle
+  state.wallet.earnedAgi += earnAmount;
   return [
     {
       id: `evt_${Date.now()}_train`,
       ts: Date.now(),
       kind: "train",
-      text: `${pet.name} trained. +${gained} XP. ${cost} AGI burned to GPU pool.`,
+      text: `${pet.name} trained. +${gained} XP · +${earnAmount.toFixed(2)} AGI earned.`,
     },
   ];
 }

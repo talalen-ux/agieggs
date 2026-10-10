@@ -9,15 +9,24 @@ import {
   FAMILY_LABEL,
   type EggFamily,
 } from "@/lib/eggs";
+import { useGame } from "@/components/StateProvider";
+import { HATCH_HOLDINGS_USD } from "@/lib/economics";
+import { fmtUsd } from "@/lib/format";
 
 const STORAGE_KEY = "agi.pets.discover.v2";
 type Stored = { family: "all" | EggFamily; scrollY: number };
 
 export default function DiscoverPage() {
   const router = useRouter();
+  const { state } = useGame();
   const [family, setFamily] = useState<"all" | EggFamily>("all");
   const [hovered, setHovered] = useState<string | null>(null);
   const [hydrated, setHydrated] = useState(false);
+
+  const usdHeld = state
+    ? state.wallet.agi * state.supply.agiPriceUsd
+    : 0;
+  const eligible = usdHeld >= HATCH_HOLDINGS_USD;
 
   // Rehydrate filter + scroll
   useEffect(() => {
@@ -70,11 +79,24 @@ export default function DiscoverPage() {
     <section className="pad-x max-shell section-sm">
       <header className="mb-16 max-w-xl">
         <div className="eyebrow-mute mb-4">Discover</div>
-        <h1 className="h-section">Forty-eight shells. One of them is yours.</h1>
+        <h1 className="h-section">
+          Choose a shell. Hold {fmtUsd(HATCH_HOLDINGS_USD)}. Hatch.
+        </h1>
         <p className="body-mute mt-5 max-w-md">
-          Browse the full collection. Open a shell to see its details and the
-          holding requirement in the chamber.
+          Browse the full collection. Hold at least {fmtUsd(HATCH_HOLDINGS_USD)}
+          {" "}of AGI to be eligible to hatch — open any shell to see its details
+          in the chamber.
         </p>
+        <div className="mt-5 inline-flex items-center gap-2 eyebrow-mute">
+          <span
+            className="inline-block w-1.5 h-1.5 rounded-full"
+            style={{ background: eligible ? "#CDFF4A" : "#737373" }}
+            aria-hidden
+          />
+          {eligible
+            ? "You are eligible to hatch."
+            : `Hold ${fmtUsd(Math.max(0, HATCH_HOLDINGS_USD - usdHeld))} more to qualify.`}
+        </div>
       </header>
 
       {/* Filters */}

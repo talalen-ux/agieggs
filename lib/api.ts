@@ -1,16 +1,15 @@
 import { NextResponse } from "next/server";
 import { loadState, saveState } from "./storage";
-import { accrueEggs, reconcileDegradation } from "./economics";
+import { reconcileDegradation } from "./economics";
 import type { GameEvent, GameState } from "./types";
 
-// Wraps a mutator: load, run egg accrual + degradation, run user mutation,
-// persist, return the resulting public-facing state.
+// Wraps a mutator: load state, run passive reconciliation (degradation band
+// check), run the user mutation, persist, and return the public state.
 export async function mutate<T = unknown>(
   fn: (state: GameState) => Promise<T> | T,
 ): Promise<{ state: GameState; result: T }> {
   const state = await loadState();
   const auto: GameEvent[] = [];
-  auto.push(...accrueEggs(state));
   auto.push(...reconcileDegradation(state));
   const result = await fn(state);
   state.events.unshift(...auto);
@@ -21,9 +20,7 @@ export async function mutate<T = unknown>(
 
 export async function readState(): Promise<GameState> {
   const state = await loadState();
-  // Read path also reconciles so the UI sees fresh accrual/degradation.
   const auto: GameEvent[] = [];
-  auto.push(...accrueEggs(state));
   auto.push(...reconcileDegradation(state));
   if (auto.length) {
     state.events.unshift(...auto);

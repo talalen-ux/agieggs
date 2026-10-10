@@ -71,9 +71,9 @@ export function seedState(): GameState {
     },
     wallet: {
       agi: 0,
-      eggs: 0,
+      earnedAgi: 0,
+      credits: 0,
       lifetimeBuy: 0,
-      lastAccrualAt: Date.now(),
     },
     pets: [],
     supply: {

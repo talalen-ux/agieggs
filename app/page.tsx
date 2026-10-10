@@ -126,8 +126,8 @@ export default function LandingPage() {
           <div className="enter">
             <h1 className="h-hero max-w-xl">A new form of life.</h1>
             <p className="body mt-6 max-w-md">
-              Choose an egg. Hold AGI within its band. Collect fragments
-              until one is ready to hatch.
+              Choose a shell. Hold enough AGI. Hatch, then earn more AGI as
+              your pet grows — convert earnings to credits anytime.
             </p>
             <div className="mt-10 flex items-center gap-6">
               <Link href="/choose" className="btn btn-primary btn-xl">
