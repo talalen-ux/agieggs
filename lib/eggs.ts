@@ -239,3 +239,9 @@ export function eggById(id: EggId): EggCatalogEntry {
   if (!e) throw new Error(`Unknown egg id: ${id}`);
   return e;
 }
+
+/** Path to the standalone, pre-trimmed egg artwork. */
+export function eggSrc(idOrEntry: EggId | EggCatalogEntry): string {
+  const id = typeof idOrEntry === "string" ? idOrEntry : idOrEntry.id;
+  return `/eggs/single/${id}.webp`;
+}
