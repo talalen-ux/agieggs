@@ -5,36 +5,64 @@ import Link from "next/link";
 import { Egg, preloadEgg } from "@/components/Egg";
 import { EGG_CATALOG, FAMILY_LABEL } from "@/lib/eggs";
 import { useGame } from "@/components/StateProvider";
-import { STAGE_USD_THRESHOLD } from "@/lib/types";
+import { HATCH_HOLDINGS_USD } from "@/lib/economics";
 import { HowItWorksMotion } from "@/components/HowItWorksMotion";
 
-/** The egg featured in the hero. One, chosen for presence. */
-const HERO = "cr-emerald";
-
-/** The viewer's starting list. Hand-curated so the first ones feel strong. */
-const DISCOVERY_ORDER = [
+/** Hand-curated viewer order — the premium shells lead. */
+const VIEWER = [
   "cr-emerald",
   "au-fissure",
   "stn-geode",
-  "cr-petal",
+  "cr-rhombus",
   "au-fold",
   "wd-maple",
   "cr-prism",
   "au-guilloche",
   "hex-dome",
-  "cr-onyx",
-  "au-craquelure",
-  "ind-orb",
 ] as const;
 
 export default function LandingPage() {
   const { state } = useGame();
   const [motionState, setMotionState] = useState<"idle" | "playing" | "done">("idle");
 
-  // Scroll-lock during motion playback. The motion fires when the stage is
-  // mostly visible (threshold 0.6 in the component), then we pin the page
-  // with the iOS-safe fixed-body pattern and release on "done". A safety
-  // timer guarantees the lock cannot outlive the motion's end state.
+  // --- Viewer state ---------------------------------------------------------
+  const viewerList = useMemo(
+    () => VIEWER.map((id) => EGG_CATALOG.find((e) => e.id === id)!),
+    [],
+  );
+  const [idx, setIdx] = useState(0);
+  const [transitioning, setTransitioning] = useState(false);
+
+  const go = useCallback(
+    (dir: 1 | -1) => {
+      if (transitioning) return;
+      const next = (idx + dir + viewerList.length) % viewerList.length;
+      preloadEgg(viewerList[next]);
+      setTransitioning(true);
+      setTimeout(() => {
+        setIdx(next);
+        setTransitioning(false);
+      }, 180);
+    },
+    [idx, transitioning, viewerList],
+  );
+
+  useEffect(() => {
+    viewerList.slice(0, 4).forEach(preloadEgg);
+  }, [viewerList]);
+
+  useEffect(() => {
+    const h = (e: KeyboardEvent) => {
+      if (e.key === "ArrowRight") go(1);
+      if (e.key === "ArrowLeft") go(-1);
+    };
+    window.addEventListener("keydown", h);
+    return () => window.removeEventListener("keydown", h);
+  }, [go]);
+
+  const current = viewerList[idx];
+
+  // --- Scroll lock during motion playback ---------------------------------
   useEffect(() => {
     if (motionState !== "playing") return;
     const scrollY = window.scrollY;
@@ -61,223 +89,144 @@ export default function LandingPage() {
       window.scrollTo(0, scrollY);
       window.removeEventListener("touchmove", block);
     };
-
-    // Safety: never pin for longer than 9s (motion lands at ~7.6s)
     const safety = window.setTimeout(restore, 9000);
-
     return () => {
       window.clearTimeout(safety);
       restore();
     };
   }, [motionState]);
+
   const remaining = state
     ? Math.max(0, state.supply.petCap - state.supply.petsMinted)
     : null;
 
-  // --- Viewer (section 2) ---------------------------------------------------
-  const viewerList = useMemo(
-    () => DISCOVERY_ORDER.map((id) => EGG_CATALOG.find((e) => e.id === id)!),
-    [],
-  );
-  const [idx, setIdx] = useState(0);
-  const [transitioning, setTransitioning] = useState(false);
-
-  const go = useCallback(
-    (dir: 1 | -1) => {
-      if (transitioning) return;
-      // preload the next egg's sheet before swapping
-      const next = (idx + dir + viewerList.length) % viewerList.length;
-      preloadEgg(viewerList[next]);
-      setTransitioning(true);
-      setTimeout(() => {
-        setIdx(next);
-        setTransitioning(false);
-      }, 200);
-    },
-    [idx, transitioning, viewerList],
-  );
-
-  // Preload the viewer's first few sheets after initial paint
-  useEffect(() => {
-    viewerList.slice(0, 4).forEach(preloadEgg);
-  }, [viewerList]);
-
-  // Keyboard navigation on the viewer
-  useEffect(() => {
-    const h = (e: KeyboardEvent) => {
-      if (e.key === "ArrowRight") go(1);
-      if (e.key === "ArrowLeft") go(-1);
-    };
-    window.addEventListener("keydown", h);
-    return () => window.removeEventListener("keydown", h);
-  }, [go]);
-
-  const current = viewerList[idx];
-  const prev = viewerList[(idx - 1 + viewerList.length) % viewerList.length];
-  const next = viewerList[(idx + 1) % viewerList.length];
-
   return (
     <>
-      {/* ======================================================
-       *  Section 1 — Focused introduction
-       * ====================================================== */}
-      <section className="pad-x max-shell section">
-        <div className="grid lg:grid-cols-[1.1fr_1fr] gap-16 items-center">
-          <div className="enter">
-            <h1 className="h-hero max-w-xl">A new form of life.</h1>
-            <p className="body mt-6 max-w-md">
-              Choose a shell. Hold enough AGI. Hatch, then earn more AGI as
-              your pet grows — convert earnings to credits anytime.
-            </p>
-            <div className="mt-10 flex items-center gap-6">
-              <Link href="/choose" className="btn btn-primary btn-xl">
-                Choose your egg
-                <Arrow />
-              </Link>
-              <Link href="#how" className="btn-link">
-                How it works
-              </Link>
-            </div>
-          </div>
-
-          <div className="flex items-center justify-center">
-            {/* Egg scales down on narrow screens via a wrapping scale transform;
-             * the box's intrinsic size is still 420px so layout stays stable. */}
-            <div className="hero-egg">
-              <Egg egg={HERO} size={420} drift eager />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ======================================================
-       *  Section 2 — Curated egg discovery
-       * ====================================================== */}
-      <section
-        className="pad-x max-shell section"
-        aria-labelledby="discovery-heading"
-      >
-        <div className="flex items-end justify-between gap-6 mb-16">
-          <div>
-            <h2 id="discovery-heading" className="h-section max-w-md">
-              Forty-eight shells. One of them is yours.
-            </h2>
-          </div>
-          <Link href="/choose" className="btn-link hidden sm:inline-flex">
-            View all eggs
-          </Link>
+      {/* ===========================================================
+       *  Hero — one centerpiece. Headline, egg, controls, CTA.
+       * =========================================================== */}
+      <section className="pad-x max-shell section-sm" aria-labelledby="hero-h">
+        <div className="max-w-3xl">
+          <h1 id="hero-h" className="h-hero">Life, waiting to unfold.</h1>
+          <p className="body mt-5 max-w-md text-ink-soft">
+            Choose an egg. Meet what comes next.
+          </p>
         </div>
 
-        <div className="relative grid lg:grid-cols-[1fr_minmax(0,420px)_1fr] items-center gap-6">
-          {/* previous peek — hidden on narrow screens */}
-          <button
-            type="button"
-            onClick={() => go(-1)}
-            aria-label="Previous egg"
-            className="hidden lg:flex opacity-30 hover:opacity-70 transition-opacity justify-end"
-            disabled={transitioning}
-          >
-            <Egg egg={prev} size={180} />
-          </button>
+        {/* Egg stage */}
+        <div className="relative mt-10 md:mt-16">
+          <div className="relative mx-auto hero-stage">
+            {/* The lime seam signature — dot · line · dot — framing the egg */}
+            <span className="seam-dot top" aria-hidden />
+            <span className="seam-line" aria-hidden />
+            <span className="seam-dot bottom" aria-hidden />
 
-          {/* center viewer */}
-          <div className="flex flex-col items-center text-center">
-            <div className="viewer-frame relative">
-              <div
-                key={current.id}
-                className="absolute inset-0 flex items-center justify-center"
-                style={{
-                  opacity: transitioning ? 0 : 1,
-                  transition: "opacity 200ms cubic-bezier(0.2, 0.8, 0.2, 1)",
-                }}
+            {/* Egg crossfade */}
+            <div
+              key={current.id}
+              className="hero-egg-slot"
+              style={{
+                opacity: transitioning ? 0 : 1,
+                transition: "opacity 180ms cubic-bezier(0.2, 0.8, 0.2, 1)",
+              }}
+            >
+              <Egg egg={current} size={420} eager />
+            </div>
+
+            {/* Prev/next controls — right-side, like the reference */}
+            <div className="hero-controls">
+              <button
+                type="button"
+                aria-label="Previous egg"
+                className="round-btn"
+                onClick={() => go(-1)}
+                disabled={transitioning}
               >
-                <Egg egg={current} size={320} className="viewer-egg" />
-              </div>
+                <ArrowLeft />
+              </button>
+              <button
+                type="button"
+                aria-label="Next egg"
+                className="round-btn"
+                onClick={() => go(1)}
+                disabled={transitioning}
+              >
+                <ArrowRight />
+              </button>
             </div>
-            <div className="mt-10" aria-live="polite">
-              <div className="eyebrow-mute">
+          </div>
+
+          {/* Egg caption — bottom-left of the stage, like the reference */}
+          <div className="mt-6 flex items-center justify-between gap-6 max-w-3xl mx-auto">
+            <div aria-live="polite">
+              <div className="text-[22px] font-semibold tracking-tight">
+                {current.name}
+              </div>
+              <div className="eyebrow-mute mt-1">
                 {FAMILY_LABEL[current.family]} · {current.theme}
               </div>
-              <div className="h-sub mt-3">{current.name}</div>
-              <p className="body-mute mt-3 max-w-sm mx-auto min-h-[48px]">
-                {current.description}
-              </p>
+            </div>
+            <div className="mono text-[12px] text-ink-mute">
+              {String(idx + 1).padStart(2, "0")}
+              <span className="opacity-50">
+                {" "}/ {String(viewerList.length).padStart(2, "0")}
+              </span>
             </div>
           </div>
-
-          {/* next peek */}
-          <button
-            type="button"
-            onClick={() => go(1)}
-            aria-label="Next egg"
-            className="hidden lg:flex opacity-30 hover:opacity-70 transition-opacity"
-            disabled={transitioning}
-          >
-            <Egg egg={next} size={180} />
-          </button>
         </div>
 
-        {/* viewer controls — position indicator + buttons */}
-        <div className="mt-12 flex items-center justify-center gap-5">
-          <button
-            type="button"
-            onClick={() => go(-1)}
-            className="btn"
-            aria-label="Previous"
-            disabled={transitioning}
+        {/* Primary CTA */}
+        <div className="mt-10 max-w-3xl mx-auto">
+          <Link
+            href="/choose"
+            className="btn btn-primary btn-xl w-full justify-between"
           >
-            <ArrowLeft />
-          </button>
-          <span className="mono text-ink-mute text-[13px]">
-            {String(idx + 1).padStart(2, "0")}
-            <span className="opacity-50"> / {String(viewerList.length).padStart(2, "0")}</span>
-          </span>
-          <button
-            type="button"
-            onClick={() => go(1)}
-            className="btn"
-            aria-label="Next"
-            disabled={transitioning}
-          >
+            <span>Choose your egg</span>
             <ArrowRight />
-          </button>
-        </div>
-
-        <div className="mt-10 text-center sm:hidden">
-          <Link href="/choose" className="btn-link">View all eggs</Link>
+          </Link>
+          <div className="mt-6 flex justify-center">
+            <a href="#how" className="btn-link text-[14px]">
+              How it works <span aria-hidden>↓</span>
+            </a>
+          </div>
         </div>
       </section>
 
-      {/* ======================================================
-       *  Section 3 — How it works (motion graphic, scroll-locked)
-       *
-       *  When the section enters the viewport the motion plays and the
-       *  page scroll is pinned. The lock releases when the motion lands
-       *  on its end frame (handled in the useEffect above).
-       * ====================================================== */}
+      {/* ===========================================================
+       *  Editorial — "A shell is only the start"
+       * =========================================================== */}
+      <section className="pad-x max-shell section rule">
+        <div className="eyebrow-mute mb-6">The beginning</div>
+        <div className="grid lg:grid-cols-[1.3fr_1fr] gap-12 items-start">
+          <h2 className="h-section max-w-2xl">A shell is only the start.</h2>
+          <p className="body text-ink-soft max-w-md">
+            Hold AGI, hatch your egg, and earn compute credits as your pet
+            grows. The shell you pick decides who wakes up — the credits you
+            earn decide what they get to do.
+          </p>
+        </div>
+      </section>
+
+      {/* ===========================================================
+       *  How it works — scroll-locked motion graphic
+       * =========================================================== */}
       <section
         id="how"
         className="pad-x max-shell section rule"
-        aria-labelledby="how-heading"
+        aria-labelledby="how-h"
       >
-        <h2 id="how-heading" className="h-section mb-10 max-w-lg">
-          How it works
-        </h2>
+        <h2 id="how-h" className="h-section mb-10 max-w-lg">How it works</h2>
         <HowItWorksMotion onStateChange={setMotionState} />
       </section>
 
-      {/* ======================================================
-       *  Section 4 — Essential facts
-       * ====================================================== */}
+      {/* ===========================================================
+       *  Facts
+       * =========================================================== */}
       <section className="pad-x max-shell section-sm">
         <dl className="grid grid-cols-2 md:grid-cols-4 gap-y-10 gap-x-10">
           <Fact k="Supply" v="100,000,000" sub="AGI, fixed" />
           <Fact k="Pets, ever" v="5,000" sub="hard cap" />
-          <Fact
-            k="To accrue"
-            v={`$${STAGE_USD_THRESHOLD.hatchling}`}
-            sub="held, minimum"
-          />
+          <Fact k="To hatch" v={`$${HATCH_HOLDINGS_USD}`} sub="held, minimum" />
           <Fact
             k="Remaining"
             v={remaining !== null ? remaining.toLocaleString() : "—"}
@@ -287,23 +236,109 @@ export default function LandingPage() {
         </dl>
       </section>
 
-      {/* ======================================================
-       *  Section 5 — Quiet closing
-       * ====================================================== */}
+      {/* ===========================================================
+       *  Closer
+       * =========================================================== */}
       <section className="pad-x max-shell section">
         <div className="flex flex-col sm:flex-row items-start sm:items-end justify-between gap-10">
           <h2 className="h-section max-w-md">Pick a shell. See what answers.</h2>
           <Link href="/choose" className="btn btn-primary btn-xl">
-            Choose your egg
-            <Arrow />
+            Choose your egg <ArrowRight />
           </Link>
         </div>
       </section>
+
+      {/* ===========================================================
+       *  Hero stage styles — kept scoped to this page
+       * =========================================================== */}
+      <style jsx>{`
+        .hero-stage {
+          position: relative;
+          width: 100%;
+          max-width: 460px;
+          aspect-ratio: 1 / 1;
+          margin: 0 auto;
+        }
+        .hero-egg-slot {
+          position: absolute;
+          inset: 0;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        /* Lime seam signature */
+        .seam-line {
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          left: 50%;
+          width: 1px;
+          margin-left: -0.5px;
+          background: #cdff4a;
+          opacity: 0.9;
+          z-index: 1;
+        }
+        .seam-dot {
+          position: absolute;
+          left: 50%;
+          width: 8px;
+          height: 8px;
+          margin-left: -4px;
+          border-radius: 2px;
+          background: #cdff4a;
+          z-index: 2;
+        }
+        .seam-dot.top { top: -4px; }
+        .seam-dot.bottom { bottom: -4px; }
+
+        /* Prev/next controls — right side, mid-egg */
+        .hero-controls {
+          position: absolute;
+          right: -12px;
+          top: 50%;
+          transform: translateY(-50%);
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          z-index: 3;
+        }
+        .round-btn {
+          width: 42px;
+          height: 42px;
+          border-radius: 999px;
+          border: 1px solid var(--hair);
+          background: var(--surface);
+          color: var(--ink);
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: border-color 150ms, background 150ms;
+        }
+        .round-btn:hover:not(:disabled) {
+          border-color: var(--ink);
+        }
+        .round-btn:focus-visible {
+          outline: 2px solid var(--ink);
+          outline-offset: 3px;
+        }
+        .round-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+        @media (max-width: 640px) {
+          .hero-stage { max-width: 340px; }
+          .hero-controls {
+            right: -4px;
+            flex-direction: row;
+            top: auto;
+            bottom: -58px;
+            transform: none;
+          }
+          .round-btn { width: 44px; height: 44px; }
+        }
+      `}</style>
     </>
   );
 }
-
-/* ---------- small components ------------------------------------------- */
 
 function Fact({
   k,
@@ -340,30 +375,31 @@ function Fact({
   );
 }
 
-function Arrow() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
-      <path
-        d="M2 11 L11 2 M5 2 H11 V8"
-        stroke="currentColor"
-        strokeWidth="1.4"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-}
 function ArrowLeft() {
   return (
     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
-      <path d="M9 2 L3 7 L9 12" stroke="currentColor" strokeWidth="1.4" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M9 2 L3 7 L9 12"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
 function ArrowRight() {
   return (
     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
-      <path d="M5 2 L11 7 L5 12" stroke="currentColor" strokeWidth="1.4" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M5 2 L11 7 L5 12"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        fill="none"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
-

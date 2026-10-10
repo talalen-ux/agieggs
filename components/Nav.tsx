@@ -142,7 +142,7 @@ function AppSubNav({ pathname }: { pathname: string }) {
         <div className="hidden md:flex items-center gap-6 text-[12px] mono whitespace-nowrap">
           <Balance label="Held" value={agi.toLocaleString() + " AGI"} />
           <Balance label="Earned" value={earned.toFixed(2) + " AGI"} />
-          <Balance label="Credits" value={credits.toLocaleString()} />
+          <Balance label="Credits" value={credits.toLocaleString() + " cr"} />
         </div>
       </div>
     </div>

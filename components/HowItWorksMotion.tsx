@@ -147,10 +147,10 @@ export function HowItWorksMotion({
           <div className="band-label mono">hold · $25</div>
           <div className="band-value mono">$25.00</div>
         </div>
-        <Caption n="02" title="Hold enough to hatch" />
+        <Caption n="02" title="Contribute AGI, hatch" />
       </div>
 
-      {/* --- Act 03 : Earn AGI → convert to credits ---------------- */}
+      {/* --- Act 03 : Earn AGI → convert to compute credits -------- */}
       <div className="act act-3">
         <div className="fragments-stage">
           <Egg egg={SELECTED} size={140} className="act3-egg" />
@@ -169,27 +169,27 @@ export function HowItWorksMotion({
             <span className="n n75">+7.50</span>
             <span className="n n100">100 cr</span>
           </div>
-          <div className="counter-sub eyebrow-mute">AGI → credits</div>
+          <div className="counter-sub eyebrow-mute">AGI → compute credits</div>
         </div>
-        <Caption n="03" title="Earn AGI, convert to credits" />
+        <Caption n="03" title="Earn compute credits" />
       </div>
 
       {/* --- End frame : static triptych --------------------------- */}
       <div className="end-frame">
         <EndStep
           n="01"
-          title="Choose a shell"
+          title="Choose your egg"
           egg={END_LEFT}
           seam={{ right: true }}
         />
         <EndStep
           n="02"
-          title="Hold & hatch"
+          title="Contribute & hatch"
           egg={END_CENTER}
           seam={{ right: true }}
           midRule
         />
-        <EndStep n="03" title="Earn & convert" egg={END_RIGHT} frag />
+        <EndStep n="03" title="Earn compute credits" egg={END_RIGHT} frag />
       </div>
 
       <style jsx>{`

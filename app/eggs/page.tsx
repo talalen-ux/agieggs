@@ -99,7 +99,9 @@ function ChamberInner() {
     const r = await call("/api/convert", { agi: convertAmount });
     if (!r.ok) setMsg(r.error ?? "Failed.");
     else {
-      setMsg(`Converted ${convertAmount.toFixed(2)} AGI → ${(convertAmount * CREDIT_RATE).toFixed(0)} credits.`);
+      setMsg(
+        `Converted ${convertAmount.toFixed(2)} AGI → ${(convertAmount * CREDIT_RATE).toFixed(0)} compute credits.`,
+      );
       setConvertAmount(0);
     }
     setBusy(null);
@@ -332,12 +334,13 @@ function ChamberInner() {
                 <div className="text-[32px] font-semibold leading-none">
                   {Math.floor(state.wallet.credits).toLocaleString()}
                 </div>
-                <div className="eyebrow-mute mt-1">Credits</div>
+                <div className="eyebrow-mute mt-1">Compute credits</div>
               </div>
             </div>
             <p className="body-mute text-[14px] mt-4">
               Your pet earns AGI through chat, training, and arena. Convert
-              earnings to credits at {CREDIT_RATE}&times; the AGI rate.
+              earnings to compute credits at {CREDIT_RATE}&times; the AGI rate.
+              Credits pay for your pet's thinking.
             </p>
           </div>
 
@@ -354,7 +357,7 @@ function ChamberInner() {
                 placeholder={state.wallet.earnedAgi.toFixed(2)}
               />
               <div className="eyebrow-mute mt-2">
-                = {(convertAmount * CREDIT_RATE).toFixed(0)} credits
+                = {(convertAmount * CREDIT_RATE).toFixed(0)} compute credits
               </div>
             </div>
             <button

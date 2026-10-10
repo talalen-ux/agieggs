@@ -80,7 +80,7 @@ export default function ChatPage() {
                 <span className="text-[16px] font-semibold">
                   {Math.floor(state.wallet.credits).toLocaleString()}
                 </span>
-                <span className="eyebrow-mute">Credits</span>
+                <span className="eyebrow-mute">Compute credits</span>
               </div>
               <Link
                 href="/eggs"

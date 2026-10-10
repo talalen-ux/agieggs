@@ -80,12 +80,12 @@ export default function DiscoverPage() {
       <header className="mb-16 max-w-xl">
         <div className="eyebrow-mute mb-4">Discover</div>
         <h1 className="h-section">
-          Choose a shell. Hold {fmtUsd(HATCH_HOLDINGS_USD)}. Hatch.
+          Pick a shell. Contribute {fmtUsd(HATCH_HOLDINGS_USD)}. Hatch.
         </h1>
         <p className="body-mute mt-5 max-w-md">
-          Browse the full collection. Hold at least {fmtUsd(HATCH_HOLDINGS_USD)}
-          {" "}of AGI to be eligible to hatch — open any shell to see its details
-          in the chamber.
+          Browse the full collection. Contribute at least{" "}
+          {fmtUsd(HATCH_HOLDINGS_USD)} of AGI to be eligible to hatch — open any
+          shell to review its details in the chamber.
         </p>
         <div className="mt-5 inline-flex items-center gap-2 eyebrow-mute">
           <span

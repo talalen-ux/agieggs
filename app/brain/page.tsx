@@ -43,7 +43,7 @@ export default function BrainPage() {
         <Stat label="intelligence" value={pet.intelligence} sub="0 → 1000" />
         <Stat label="experience" value={pet.experience} />
         <Stat
-          label="memory fragments"
+          label="memories"
           value={pet.memory.length}
           sub="decaying · IPFS-anchored"
         />

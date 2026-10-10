@@ -6,7 +6,7 @@ import { StateProvider } from "@/components/StateProvider";
 export const metadata: Metadata = {
   title: "AGI.Pets — a new form of life",
   description:
-    "Choose an egg. Hold within your band. Collect fragments toward hatching. 100,000,000 AGI, 5,000 pets ever.",
+    "Choose an egg, contribute AGI, hatch, and earn compute credits as your pet grows. 100,000,000 AGI, 5,000 pets ever.",
 };
 
 export default function RootLayout({
