@@ -475,28 +475,31 @@ input::placeholder {
   display: inline-block;
   transform-origin: center;
 }
+
+/* Reserve a square frame — the sprite cells are 1:1 and the egg is
+ * centered inside its transparent cell. */
 .viewer-frame {
-  width: 320px;
-  height: 420px;
+  width: 360px;
+  height: 360px;
   margin-inline: auto;
 }
 
 @media (max-width: 640px) {
   .hero-egg {
-    transform: scale(0.62);
+    transform: scale(0.68);
     margin-top: -40px;
     margin-bottom: -40px;
   }
   .viewer-frame {
-    width: 220px;
-    height: 290px;
+    width: 260px;
+    height: 260px;
   }
   .viewer-egg {
-    transform: scale(0.68);
+    transform: scale(0.78);
     transform-origin: center;
   }
   .chamber-egg-wrap {
-    transform: scale(0.78);
+    transform: scale(0.82);
     margin-top: -24px;
     margin-bottom: -24px;
     transform-origin: center;
@@ -504,7 +507,7 @@ input::placeholder {
 }
 @media (min-width: 641px) and (max-width: 1024px) {
   .hero-egg {
-    transform: scale(0.8);
+    transform: scale(0.85);
   }
 }
 

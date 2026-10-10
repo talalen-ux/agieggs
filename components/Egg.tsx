@@ -4,11 +4,17 @@ import type { EggCatalogEntry, EggId } from "@/lib/eggs";
 import { eggById } from "@/lib/eggs";
 
 /**
- * Renders one egg from the sprite sheet. Backed by background-image on a
- * fixed-aspect box so no layout shifts — we reserve dimensions up front.
+ * Renders one egg from the sprite sheet.
  *
- * The sheets are 3×2 grids. background-size: 300% 200% + the standard
- * percentage trick shows exactly one cell.
+ * Every sheet is 1536×1024 = a 3×2 grid of 512×512 **square** cells.
+ * The container must therefore be square too, or neighboring cells
+ * bleed into the frame. `background-size: 300% 200%` + the standard
+ * percentage positioning trick isolates exactly one cell.
+ *
+ * The art itself is a tall egg centered inside its square cell. We
+ * render the full square (so the egg is never cut off) and let the
+ * transparent padding sit around it; callers that need a tighter
+ * visual box can pass a smaller `size`.
  */
 export function Egg({
   egg,
@@ -32,8 +38,10 @@ export function Egg({
   eager?: boolean;
 }) {
   const e = typeof egg === "string" ? eggById(egg) : egg;
+  // Match the sprite's square cell aspect. If a caller passes custom
+  // width/height they override; otherwise size === both dimensions.
   const w = width ?? size;
-  const h = height ?? Math.round((size * 4) / 3);
+  const h = height ?? size;
   const posX = e.col * 50;
   const posY = e.row * 100;
 
@@ -47,12 +55,10 @@ export function Egg({
         backgroundSize: "300% 200%",
         backgroundPosition: `${posX}% ${posY}%`,
         backgroundRepeat: "no-repeat",
-        // Transparent edges — the sheet art has clean transparency.
         ...style,
       }}
       role="img"
       aria-label={`${e.name} egg`}
-      // encourage the browser to pull the hero sheet eagerly
       {...(eager ? { "data-eager": "true" } : {})}
     />
   );
