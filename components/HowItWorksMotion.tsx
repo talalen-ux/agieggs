@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Egg } from "./Egg";
-import { eggById, type EggId } from "@/lib/eggs";
+import { Egg, preloadEgg } from "./Egg";
+import type { EggId } from "@/lib/eggs";
 
 /**
  * How-it-works motion graphic.
@@ -11,9 +11,9 @@ import { eggById, type EggId } from "@/lib/eggs";
  * is itself the diagram the section would carry on its own.
  *
  *   01 Choose      three real shells slide in; the center one is marked
- *   02 Band        the chosen shell lands; a dashed $25 holding line
+ *   02 Contribute  the chosen shell lands; a dashed $25 holding line
  *                  draws across; AGI tokens tick up past it
- *   03 Fragments   lime particles converge; a counter steps 0.00 → 1.00
+ *   03 Earn        lime particles converge; earned AGI converts to credits
  *
  * Triggers on scroll (IntersectionObserver, once). Respects
  * prefers-reduced-motion by rendering the end frame immediately.
@@ -83,15 +83,9 @@ export function HowItWorksMotion({
     return () => clearTimeout(t);
   }, [state]);
 
-  // Preload the sprite sheets used in the motion so there are no blank frames
+  // Preload the eggs used in the motion so there are no blank frames
   useEffect(() => {
-    [SELECTED, LEFT, RIGHT, END_LEFT, END_CENTER, END_RIGHT].forEach((id) => {
-      const e = eggById(id);
-      if (typeof window !== "undefined") {
-        const img = new window.Image();
-        img.src = e.sheet;
-      }
-    });
+    [SELECTED, LEFT, RIGHT, END_LEFT, END_CENTER, END_RIGHT].forEach(preloadEgg);
   }, []);
 
   return (
@@ -187,7 +181,6 @@ export function HowItWorksMotion({
           title="Contribute & hatch"
           egg={END_CENTER}
           seam={{ right: true }}
-          midRule
         />
         <EndStep n="03" title="Earn compute credits" egg={END_RIGHT} frag />
       </div>
@@ -419,6 +412,7 @@ export function HowItWorksMotion({
           padding: 2px 8px;
           border-radius: 999px;
           background: #cdff4a;
+          white-space: nowrap;
         }
 
         /* ===========================================================
@@ -736,14 +730,12 @@ function EndStep({
   title,
   egg,
   seam,
-  midRule,
   frag,
 }: {
   n: string;
   title: string;
   egg: EggId;
   seam?: { right?: boolean };
-  midRule?: boolean;
   frag?: boolean;
 }) {
   return (
@@ -755,15 +747,14 @@ function EndStep({
             className="end-frag"
             style={{
               position: "absolute",
-              top: 10,
-              right: -10,
+              top: 6,
+              right: -28,
             }}
           >
-            1.00
+            +100 cr
           </span>
         )}
       </div>
-      {midRule && <div className="end-mid-rule" />}
       <div>
         <div className="end-num">{n}</div>
         <div className="end-ttl">{title}</div>

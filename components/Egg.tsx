@@ -49,7 +49,11 @@ export function Egg({
       className={`inline-block select-none ${drift ? "egg-drift pause-when-offscreen" : ""} ${className}`}
       style={{
         width: w,
-        height: h,
+        maxWidth: "100%",
+        // height follows width so a narrow container shrinks the egg
+        // proportionally instead of leaving empty bands above and below
+        height: "auto",
+        aspectRatio: `${w} / ${h}`,
         objectFit: "contain",
         objectPosition: "center",
         ...style,

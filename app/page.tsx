@@ -362,32 +362,6 @@ export default function LandingPage() {
         }
         .foot-scroll:hover { color: var(--ink); }
 
-        /* Pill buttons */
-        .btn-pill {
-          display: inline-flex;
-          align-items: center;
-          gap: 10px;
-          padding: 14px 24px;
-          border-radius: 999px;
-          border: 1px solid var(--ink);
-          background: transparent;
-          color: var(--ink);
-          font-weight: 600;
-          font-size: 15px;
-          transition:
-            background 150ms,
-            color 150ms,
-            transform 150ms;
-          cursor: pointer;
-        }
-        .btn-pill:hover { background: var(--ink); color: #fff; }
-        .btn-pill-primary {
-          background: var(--ink);
-          color: #fff;
-          padding: 16px 28px;
-        }
-        .btn-pill-primary:hover { background: #000; transform: translateY(-1px); }
-
         /* Round prev/next */
         .round-btn {
           width: 36px;
@@ -405,15 +379,16 @@ export default function LandingPage() {
         .round-btn:hover:not(:disabled) { border-color: var(--ink); }
         .round-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
-        /* Watermark — subtle brand burn, bottom-right of frame, behind content */
+        /* Watermark — subtle brand burn in the empty top-right corner,
+         * clear of the egg, the CTA and the footer controls */
         .hero-watermark {
           position: absolute;
-          right: 16px;
-          bottom: -8px;
+          right: clamp(20px, 3vw, 44px);
+          top: clamp(16px, 2.4vw, 32px);
           z-index: 0;
           font-family: "Inter", sans-serif;
           font-weight: 800;
-          font-size: clamp(60px, 10vw, 140px);
+          font-size: clamp(40px, 5vw, 72px);
           letter-spacing: 0.02em;
           line-height: 0.9;
           color: transparent;
@@ -451,11 +426,7 @@ export default function LandingPage() {
           .foot-controls,
           .foot-scroll { justify-self: start; }
           .foot-scroll { display: none; }
-          .hero-watermark {
-            font-size: 56px;
-            right: 8px;
-            bottom: -4px;
-          }
+          .hero-watermark { display: none; }
         }
       `}</style>
     </>
