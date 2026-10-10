@@ -29,6 +29,9 @@ SHEETS = {
     "wood.webp": ["wd-bark", "wd-birch", "wd-redwood", "wd-fern", "wd-root", "wd-maple"],
     "crystal.webp": ["cr-prism", "cr-petal", "cr-spiral", "cr-rhombus", "cr-onyx", "cr-emerald"],
     "gold.webp": ["au-dune", "au-fissure", "au-guilloche", "au-fold", "au-facet", "au-craquelure"],
+    "earth.webp": ["er-moss", "er-coral", "er-sandbar", "er-mycel", "er-frond", "er-brook"],
+    "electric.webp": ["el-arc", "el-spark", "el-tesla", "el-plasma", "el-surge", "el-gyre"],
+    "terra.webp": ["tr-clay", "tr-loam", "tr-strata", "tr-rift", "tr-ochre", "tr-granite"],
 }
 
 ALPHA_MIN = 8          # pixels at or below this alpha count as background

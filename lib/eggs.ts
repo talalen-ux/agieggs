@@ -18,7 +18,10 @@ export type EggFamily =
   | "stone"
   | "wood"
   | "crystal"
-  | "gold";
+  | "gold"
+  | "earth"
+  | "electric"
+  | "terra";
 
 export type EggId =
   // Aqua ------------------------------------------------------------
@@ -44,7 +47,16 @@ export type EggId =
   | "cr-rhombus" | "cr-onyx" | "cr-emerald"
   // Gold ------------------------------------------------------------
   | "au-dune" | "au-fissure" | "au-guilloche"
-  | "au-fold" | "au-facet" | "au-craquelure";
+  | "au-fold" | "au-facet" | "au-craquelure"
+  // Earth -----------------------------------------------------------
+  | "er-moss" | "er-coral" | "er-sandbar"
+  | "er-mycel" | "er-frond" | "er-brook"
+  // Electric --------------------------------------------------------
+  | "el-arc" | "el-spark" | "el-tesla"
+  | "el-plasma" | "el-surge" | "el-gyre"
+  // Terra -----------------------------------------------------------
+  | "tr-clay" | "tr-loam" | "tr-strata"
+  | "tr-rift" | "tr-ochre" | "tr-granite";
 
 export type EggCatalogEntry = {
   id: EggId;
@@ -63,6 +75,9 @@ export const FAMILY_LABEL: Record<EggFamily, string> = {
   wood: "Wood",
   crystal: "Crystal",
   gold: "Gold",
+  earth: "Earth",
+  electric: "Electric",
+  terra: "Terra",
 };
 
 export const EGG_CATALOG: EggCatalogEntry[] = [
@@ -177,10 +192,53 @@ export const EGG_CATALOG: EggCatalogEntry[] = [
     description: "Angular panels of brushed and polished gold." },
   { id: "au-craquelure", name: "Craquelure", family: "gold", theme: "Shell",
     description: "Cream shell crackled with liquid gold." },
+
+  // --- Earth ----------
+  { id: "er-moss", name: "Moss", family: "earth", theme: "Overgrown",
+    description: "Pale river stones bound together by living moss." },
+  { id: "er-coral", name: "Coral", family: "earth", theme: "Reef",
+    description: "Porous coral lattice over pink and teal opal." },
+  { id: "er-sandbar", name: "Sandbar", family: "earth", theme: "Tide",
+    description: "Wind-carved sand layers with amber pooled between." },
+  { id: "er-mycel", name: "Mycel", family: "earth", theme: "Network",
+    description: "Dark bark plates threaded with pale mycelium and amber." },
+  { id: "er-frond", name: "Frond", family: "earth", theme: "Fossil",
+    description: "Fern-pressed leaves folded around a green stone." },
+  { id: "er-brook", name: "Brook", family: "earth", theme: "Stream",
+    description: "Grey river stone split by a channel of clear water." },
+
+  // --- Electric ----------
+  { id: "el-arc", name: "Arc", family: "electric", theme: "Discharge",
+    description: "White shell parted on a blue arc between two electrodes." },
+  { id: "el-spark", name: "Spark", family: "electric", theme: "Crackle",
+    description: "Dark plating with lime-lit seams and charged glass pods." },
+  { id: "el-tesla", name: "Tesla", family: "electric", theme: "Coil",
+    description: "Copper coils stacked inside a brushed-steel capsule." },
+  { id: "el-plasma", name: "Plasma", family: "electric", theme: "Core",
+    description: "A pearl core held in a cage of blue lightning." },
+  { id: "el-surge", name: "Surge", family: "electric", theme: "Fault",
+    description: "Blackened blades split by a molten gold strike." },
+  { id: "el-gyre", name: "Gyre", family: "electric", theme: "Orbit",
+    description: "A charged orb suspended in a glass gyroscope." },
+
+  // --- Terra ----------
+  { id: "tr-clay", name: "Clay", family: "terra", theme: "Kiln",
+    description: "Red clay plates around a polished amber core." },
+  { id: "tr-loam", name: "Loam", family: "terra", theme: "Soil",
+    description: "Dark soil shell with roots reaching an amber eye." },
+  { id: "tr-strata", name: "Strata", family: "terra", theme: "Sediment",
+    description: "Banded sandstone with a grey vein running through." },
+  { id: "tr-rift", name: "Rift", family: "terra", theme: "Fracture",
+    description: "Weathered rock split open on a rust-red seam." },
+  { id: "tr-ochre", name: "Ochre", family: "terra", theme: "Desert",
+    description: "Ochre sandstone swirls around a single amber eye." },
+  { id: "tr-granite", name: "Granite", family: "terra", theme: "Mosaic",
+    description: "Speckled granite mosaic around a smooth grey heart." },
 ];
 
 export const FAMILIES: EggFamily[] = [
   "aqua", "industrial", "hex", "fantasy", "stone", "wood", "crystal", "gold",
+  "earth", "electric", "terra",
 ];
 
 export function eggById(id: EggId): EggCatalogEntry {
