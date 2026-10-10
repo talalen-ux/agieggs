@@ -468,6 +468,47 @@ input::placeholder {
 ::-webkit-scrollbar-thumb:hover { background: #b7b7b7; }
 
 /* ------------------------------------------------------------------
+ * Responsive egg wrappers for the landing hero + viewer
+ * ----------------------------------------------------------------- */
+
+.hero-egg {
+  display: inline-block;
+  transform-origin: center;
+}
+.viewer-frame {
+  width: 320px;
+  height: 420px;
+  margin-inline: auto;
+}
+
+@media (max-width: 640px) {
+  .hero-egg {
+    transform: scale(0.62);
+    margin-top: -40px;
+    margin-bottom: -40px;
+  }
+  .viewer-frame {
+    width: 220px;
+    height: 290px;
+  }
+  .viewer-egg {
+    transform: scale(0.68);
+    transform-origin: center;
+  }
+  .chamber-egg-wrap {
+    transform: scale(0.78);
+    margin-top: -24px;
+    margin-bottom: -24px;
+    transform-origin: center;
+  }
+}
+@media (min-width: 641px) and (max-width: 1024px) {
+  .hero-egg {
+    transform: scale(0.8);
+  }
+}
+
+/* ------------------------------------------------------------------
  * Layout helpers — margins per brief
  * ----------------------------------------------------------------- */
 

@@ -27,10 +27,22 @@ const END_LEFT: EggId = "au-fold";
 const END_CENTER: EggId = "cr-emerald";
 const END_RIGHT: EggId = "wd-maple";
 
-export function HowItWorksMotion() {
+export function HowItWorksMotion({
+  onStateChange,
+}: {
+  /** Called whenever the motion changes state. The parent uses this to
+   *  lock page scroll while "playing" and release it on "done".
+   */
+  onStateChange?: (state: "idle" | "playing" | "done") => void;
+} = {}) {
   const ref = useRef<HTMLDivElement>(null);
   const [state, setState] = useState<"idle" | "playing" | "done">("idle");
   const [reducedMotion, setReducedMotion] = useState(false);
+
+  // Notify the parent on every state transition.
+  useEffect(() => {
+    onStateChange?.(state);
+  }, [state, onStateChange]);
 
   useEffect(() => {
     const mq = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -57,7 +69,9 @@ export function HowItWorksMotion() {
           }
         }
       },
-      { threshold: 0.4 },
+      // Wait until most of the stage is on screen so the scroll-lock
+      // doesn't engage with the content halfway visible.
+      { threshold: 0.6 },
     );
     io.observe(el);
     return () => io.disconnect();
@@ -90,14 +104,14 @@ export function HowItWorksMotion() {
       {/* --- Act 01 : Choose an egg --------------------------------- */}
       <div className="act act-1">
         <div className="eggs-row">
-          <div className="egg-slot a">
+          <div className="egg-slot a act1-slot">
             <Egg egg={LEFT} size={108} />
           </div>
-          <div className="egg-slot b">
+          <div className="egg-slot b act1-slot">
             <Egg egg={SELECTED} size={108} />
             <span className="sel-mark" aria-hidden />
           </div>
-          <div className="egg-slot c">
+          <div className="egg-slot c act1-slot">
             <Egg egg={RIGHT} size={108} />
           </div>
         </div>
@@ -625,21 +639,82 @@ export function HowItWorksMotion() {
         }
 
         /* ===========================================================
-         *  Mobile adjustments
+         *  Mobile adjustments — smaller eggs, stacked triptych, no horizontal overflow
          * =========================================================== */
         @media (max-width: 640px) {
           .hiw-stage {
-            min-height: 520px;
+            min-height: 460px;
           }
           .eggs-row {
-            gap: 20px;
+            gap: 14px;
+          }
+          :global(.hiw-stage .act1-slot > *),
+          :global(.hiw-stage .act2-egg),
+          :global(.hiw-stage .act3-egg) {
+            transform: scale(0.75);
+            transform-origin: center;
+          }
+          :global(.hiw-stage .end-step .end-frag) {
+            top: 4px !important;
+            right: -4px !important;
+            font-size: 12px;
+            padding: 1px 6px;
+          }
+          .band-stage,
+          .fragments-stage {
+            width: 100%;
+            max-width: 320px;
+            height: 220px;
+          }
+          .band-label,
+          .band-value {
+            top: 94px;
+            font-size: 10px;
+          }
+          .band-label {
+            left: 8px;
+          }
+          .band-value {
+            right: 8px;
+          }
+          .counter {
+            font-size: 24px;
+            bottom: 24px;
           }
           .end-frame {
             grid-template-columns: 1fr;
-            gap: 24px;
+            gap: 32px;
+            align-items: start;
+            padding: 20px 0;
+          }
+          :global(.hiw-stage .end-step) {
+            flex-direction: row;
+            text-align: left;
+            gap: 16px;
+            align-items: center;
+            justify-content: flex-start;
+          }
+          :global(.hiw-stage .end-step .end-ttl) {
+            text-align: left;
           }
           :global(.hiw-stage .end-step.seam-right::after) {
             display: none;
+          }
+          :global(.hiw-stage .end-step .end-mid-rule) {
+            display: none;
+          }
+          :global(.hiw-stage .caption-title) {
+            font-size: 17px;
+          }
+        }
+
+        /* ===========================================================
+         *  Tablet — slightly smaller internals
+         * =========================================================== */
+        @media (min-width: 641px) and (max-width: 1024px) {
+          .band-stage {
+            width: 480px;
+            max-width: 100%;
           }
         }
       `}</style>

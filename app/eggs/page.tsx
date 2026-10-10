@@ -95,21 +95,21 @@ function ChamberInner() {
 
   return (
     <section className="pad-x max-shell section-sm">
-      <header className="mb-14 flex items-end justify-between gap-6 flex-wrap">
-        <div>
-          <div className="eyebrow-mute mb-4">Chamber</div>
-          <h1 className="h-section max-w-xl">{egg.name}</h1>
-          <p className="body-mute mt-5 max-w-md">{egg.description}</p>
+      <header className="mb-10 md:mb-14">
+        <div className="flex items-center justify-between gap-4 mb-6">
+          <div className="eyebrow-mute">Chamber</div>
+          <Link href="/choose" className="btn-link text-[13px]">
+            ← Back to Discover
+          </Link>
         </div>
-        <Link href="/choose" className="btn-link">
-          ← Discover
-        </Link>
+        <h1 className="h-section max-w-xl">{egg.name}</h1>
+        <p className="body-mute mt-5 max-w-md">{egg.description}</p>
       </header>
 
       {/* ---------- Main grid: egg | details | controls ---------- */}
-      <div className="grid lg:grid-cols-[auto_1fr_minmax(320px,auto)] gap-14 items-start">
+      <div className="grid lg:grid-cols-[auto_1fr_minmax(320px,auto)] gap-10 lg:gap-14 items-start">
         {/* Egg */}
-        <div className="flex flex-col items-center lg:items-start">
+        <div className="flex flex-col items-center lg:items-start chamber-egg-wrap">
           <div className={opening ? "egg-open" : "egg-drift"}>
             <Egg egg={egg} size={320} />
           </div>
@@ -117,7 +117,7 @@ function ChamberInner() {
 
         {/* Verified attributes */}
         <div>
-          <dl className="grid grid-cols-2 gap-x-8 gap-y-6 max-w-md">
+          <dl className="grid grid-cols-2 gap-x-6 sm:gap-x-8 gap-y-6 max-w-md">
             <Attr k="Family" v={FAMILY_LABEL[egg.family]} />
             <Attr k="Theme" v={egg.theme} />
             <Attr k="Identifier" v={egg.id} mono />

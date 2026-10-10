@@ -29,6 +29,47 @@ const DISCOVERY_ORDER = [
 
 export default function LandingPage() {
   const { state } = useGame();
+  const [motionState, setMotionState] = useState<"idle" | "playing" | "done">("idle");
+
+  // Scroll-lock during motion playback. The motion fires when the stage is
+  // mostly visible (threshold 0.6 in the component), then we pin the page
+  // with the iOS-safe fixed-body pattern and release on "done". A safety
+  // timer guarantees the lock cannot outlive the motion's end state.
+  useEffect(() => {
+    if (motionState !== "playing") return;
+    const scrollY = window.scrollY;
+    const body = document.body;
+    const prev = {
+      overflow: body.style.overflow,
+      position: body.style.position,
+      top: body.style.top,
+      width: body.style.width,
+    };
+    body.style.overflow = "hidden";
+    body.style.position = "fixed";
+    body.style.top = `-${scrollY}px`;
+    body.style.width = "100%";
+
+    const block = (e: TouchEvent) => e.preventDefault();
+    window.addEventListener("touchmove", block, { passive: false });
+
+    const restore = () => {
+      body.style.overflow = prev.overflow;
+      body.style.position = prev.position;
+      body.style.top = prev.top;
+      body.style.width = prev.width;
+      window.scrollTo(0, scrollY);
+      window.removeEventListener("touchmove", block);
+    };
+
+    // Safety: never pin for longer than 9s (motion lands at ~7.6s)
+    const safety = window.setTimeout(restore, 9000);
+
+    return () => {
+      window.clearTimeout(safety);
+      restore();
+    };
+  }, [motionState]);
   const remaining = state
     ? Math.max(0, state.supply.petCap - state.supply.petsMinted)
     : null;
@@ -100,7 +141,11 @@ export default function LandingPage() {
           </div>
 
           <div className="flex items-center justify-center">
-            <Egg egg={HERO} size={420} drift eager />
+            {/* Egg scales down on narrow screens via a wrapping scale transform;
+             * the box's intrinsic size is still 420px so layout stays stable. */}
+            <div className="hero-egg">
+              <Egg egg={HERO} size={420} drift eager />
+            </div>
           </div>
         </div>
       </section>
@@ -115,7 +160,7 @@ export default function LandingPage() {
         <div className="flex items-end justify-between gap-6 mb-16">
           <div>
             <h2 id="discovery-heading" className="h-section max-w-md">
-              Thirty-six shells. One of them is yours.
+              Forty-eight shells. One of them is yours.
             </h2>
           </div>
           <Link href="/choose" className="btn-link hidden sm:inline-flex">
@@ -137,10 +182,7 @@ export default function LandingPage() {
 
           {/* center viewer */}
           <div className="flex flex-col items-center text-center">
-            <div
-              className="relative"
-              style={{ width: 320, height: 420, marginInline: "auto" }}
-            >
+            <div className="viewer-frame relative">
               <div
                 key={current.id}
                 className="absolute inset-0 flex items-center justify-center"
@@ -149,7 +191,7 @@ export default function LandingPage() {
                   transition: "opacity 200ms cubic-bezier(0.2, 0.8, 0.2, 1)",
                 }}
               >
-                <Egg egg={current} size={320} />
+                <Egg egg={current} size={320} className="viewer-egg" />
               </div>
             </div>
             <div className="mt-10" aria-live="polite">
@@ -207,7 +249,11 @@ export default function LandingPage() {
       </section>
 
       {/* ======================================================
-       *  Section 3 — How it works (motion graphic)
+       *  Section 3 — How it works (motion graphic, scroll-locked)
+       *
+       *  When the section enters the viewport the motion plays and the
+       *  page scroll is pinned. The lock releases when the motion lands
+       *  on its end frame (handled in the useEffect above).
        * ====================================================== */}
       <section
         id="how"
@@ -217,7 +263,7 @@ export default function LandingPage() {
         <h2 id="how-heading" className="h-section mb-10 max-w-lg">
           How it works
         </h2>
-        <HowItWorksMotion />
+        <HowItWorksMotion onStateChange={setMotionState} />
       </section>
 
       {/* ======================================================
