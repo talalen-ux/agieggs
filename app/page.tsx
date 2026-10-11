@@ -18,8 +18,6 @@ const VIEWER = [
 
 export default function LandingPage() {
   const { state } = useGame();
-  const [motionState, setMotionState] =
-    useState<"idle" | "playing" | "done">("idle");
 
   const viewerList = useMemo(
     () => VIEWER.map((id) => EGG_CATALOG.find((e) => e.id === id)!),
@@ -57,39 +55,6 @@ export default function LandingPage() {
 
   const current = viewerList[idx];
 
-  // Scroll lock during motion playback
-  useEffect(() => {
-    if (motionState !== "playing") return;
-    const scrollY = window.scrollY;
-    const body = document.body;
-    const prev = {
-      overflow: body.style.overflow,
-      position: body.style.position,
-      top: body.style.top,
-      width: body.style.width,
-    };
-    body.style.overflow = "hidden";
-    body.style.position = "fixed";
-    body.style.top = `-${scrollY}px`;
-    body.style.width = "100%";
-
-    const block = (e: TouchEvent) => e.preventDefault();
-    window.addEventListener("touchmove", block, { passive: false });
-
-    const restore = () => {
-      body.style.overflow = prev.overflow;
-      body.style.position = prev.position;
-      body.style.top = prev.top;
-      body.style.width = prev.width;
-      window.scrollTo(0, scrollY);
-      window.removeEventListener("touchmove", block);
-    };
-    const safety = window.setTimeout(restore, 9000);
-    return () => {
-      window.clearTimeout(safety);
-      restore();
-    };
-  }, [motionState]);
 
   const remaining = state
     ? Math.max(0, state.supply.petCap - state.supply.petsMinted)
@@ -229,7 +194,7 @@ export default function LandingPage() {
         aria-labelledby="how-h"
       >
         <h2 id="how-h" className="h-section mb-10 max-w-lg">How it works</h2>
-        <HowItWorksMotion onStateChange={setMotionState} />
+        <HowItWorksMotion />
       </section>
 
       {/* ===========================================================
