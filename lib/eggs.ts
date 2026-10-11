@@ -21,7 +21,10 @@ export type EggFamily =
   | "gold"
   | "earth"
   | "electric"
-  | "terra";
+  | "terra"
+  | "feather"
+  | "frost"
+  | "verdant";
 
 export type EggId =
   // Aqua ------------------------------------------------------------
@@ -56,7 +59,16 @@ export type EggId =
   | "el-plasma" | "el-surge" | "el-gyre"
   // Terra -----------------------------------------------------------
   | "tr-clay" | "tr-loam" | "tr-strata"
-  | "tr-rift" | "tr-ochre" | "tr-granite";
+  | "tr-rift" | "tr-ochre" | "tr-granite"
+  // Feather ---------------------------------------------------------
+  | "fe-ashwing" | "fe-peacock" | "fe-dove"
+  | "fe-kingfisher" | "fe-owl" | "fe-raven"
+  // Frost -----------------------------------------------------------
+  | "fr-glacier" | "fr-rime" | "fr-berg"
+  | "fr-nightfrost" | "fr-drift" | "fr-hoar"
+  // Verdant ---------------------------------------------------------
+  | "vd-scarab" | "vd-bud" | "vd-cicada"
+  | "vd-firefly" | "vd-laurel" | "vd-canopy";
 
 export type EggCatalogEntry = {
   id: EggId;
@@ -78,6 +90,9 @@ export const FAMILY_LABEL: Record<EggFamily, string> = {
   earth: "Earth",
   electric: "Electric",
   terra: "Terra",
+  feather: "Feather",
+  frost: "Frost",
+  verdant: "Verdant",
 };
 
 export const EGG_CATALOG: EggCatalogEntry[] = [
@@ -234,11 +249,53 @@ export const EGG_CATALOG: EggCatalogEntry[] = [
     description: "Ochre sandstone swirls around a single amber eye." },
   { id: "tr-granite", name: "Granite", family: "terra", theme: "Mosaic",
     description: "Speckled granite mosaic around a smooth grey heart." },
+
+  // --- Feather ----------
+  { id: "fe-ashwing", name: "Ashwing", family: "feather", theme: "Smoke",
+    description: "Graphite feathers parting on an amber seam." },
+  { id: "fe-peacock", name: "Peacock", family: "feather", theme: "Plume",
+    description: "Iridescent teal plumage set with opal eyes." },
+  { id: "fe-dove", name: "Dove", family: "feather", theme: "Down",
+    description: "Pale white feathers curling around a pearl seam." },
+  { id: "fe-kingfisher", name: "Kingfisher", family: "feather", theme: "Dive",
+    description: "Cobalt and copper feathers framing an amber core." },
+  { id: "fe-owl", name: "Owl", family: "feather", theme: "Hush",
+    description: "Layered brown and cream feathers over smoky quartz." },
+  { id: "fe-raven", name: "Raven", family: "feather", theme: "Night",
+    description: "Black feathers with a green sheen and a dark glass seam." },
+
+  // --- Frost ----------
+  { id: "fr-glacier", name: "Glacier", family: "frost", theme: "Shard",
+    description: "Pale ice shards closing around a deep blue core." },
+  { id: "fr-rime", name: "Rime", family: "frost", theme: "Fern",
+    description: "White porcelain etched with frost ferns and a crystal heart." },
+  { id: "fr-berg", name: "Berg", family: "frost", theme: "Floe",
+    description: "Stacked ice blocks over glowing blue water." },
+  { id: "fr-nightfrost", name: "Nightfrost", family: "frost", theme: "Polar",
+    description: "Black glass with blue frost veins under silver lines." },
+  { id: "fr-drift", name: "Drift", family: "frost", theme: "Snow",
+    description: "Soft snow drifts folding over opal ice." },
+  { id: "fr-hoar", name: "Hoar", family: "frost", theme: "Rime",
+    description: "Frosted grey ribs traced in silver." },
+
+  // --- Verdant ----------
+  { id: "vd-scarab", name: "Scarab", family: "verdant", theme: "Shell",
+    description: "Iridescent green wing cases around an emerald." },
+  { id: "vd-bud", name: "Bud", family: "verdant", theme: "Unfurl",
+    description: "Sage leaves opening on glowing green scales." },
+  { id: "vd-cicada", name: "Cicada", family: "verdant", theme: "Wing",
+    description: "Veined glass wings folded over a moss-green body." },
+  { id: "vd-firefly", name: "Firefly", family: "verdant", theme: "Glow",
+    description: "A dark beetle shell over a lit green orb." },
+  { id: "vd-laurel", name: "Laurel", family: "verdant", theme: "Crown",
+    description: "Gilded green leaves around pale scaled jade." },
+  { id: "vd-canopy", name: "Canopy", family: "verdant", theme: "Leaf",
+    description: "Bright leaves wrapped around an emerald eye." },
 ];
 
 export const FAMILIES: EggFamily[] = [
   "aqua", "industrial", "hex", "fantasy", "stone", "wood", "crystal", "gold",
-  "earth", "electric", "terra",
+  "earth", "electric", "terra", "feather", "frost", "verdant",
 ];
 
 export function eggById(id: EggId): EggCatalogEntry {

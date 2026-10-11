@@ -32,6 +32,9 @@ SHEETS = {
     "earth.webp": ["er-moss", "er-coral", "er-sandbar", "er-mycel", "er-frond", "er-brook"],
     "electric.webp": ["el-arc", "el-spark", "el-tesla", "el-plasma", "el-surge", "el-gyre"],
     "terra.webp": ["tr-clay", "tr-loam", "tr-strata", "tr-rift", "tr-ochre", "tr-granite"],
+    "feather.webp": ["fe-ashwing", "fe-peacock", "fe-dove", "fe-kingfisher", "fe-owl", "fe-raven"],
+    "frost.webp": ["fr-glacier", "fr-rime", "fr-berg", "fr-nightfrost", "fr-drift", "fr-hoar"],
+    "verdant.webp": ["vd-scarab", "vd-bud", "vd-cicada", "vd-firefly", "vd-laurel", "vd-canopy"],
 }
 
 ALPHA_MIN = 8          # pixels at or below this alpha count as background
