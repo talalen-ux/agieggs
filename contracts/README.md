@@ -1,45 +1,73 @@
-# Contracts
+# AGI.Pets contracts
 
-Sketches of the on-chain layer for AGI.Pets. They compile against
-OpenZeppelin v5 + Chainlink, but are illustrative — not audited, not deployed.
+Three contracts, compiled with Solidity 0.8.24 and OpenZeppelin 5.0.2.
 
-| Contract | Role |
+| Contract | What it does |
 |---|---|
-| `AGIToken.sol` | Fixed-supply (100M) ERC-20. 2.5% buy/sell tax routed to the compute treasury. |
-| `EggVault.sol` | Soulbound egg accrual gated by USD-denominated holdings (Chainlink price feed). Burns 1 egg per pet mint. |
-| `PetNFT.sol` | ERC-721 with stage, traits, XP, intelligence score, and a memory hash pointer. Hard-capped at 5,000. |
-| `EvolutionEngine.sol` | The "band" enforcer. `canEvolve()` validates USD holdings via oracle + XP requirement. |
-| `ComputeTreasury.sol` | Receives the tax. Pays whitelisted GPU providers (PinLink etc.) against orchestrator-signed receipts. |
-| `IntelligenceRegistry.sol` | On-chain permissions: skill bitmap, compute priority, degraded-mode throttle, memory anchor. |
+| `AGIToken` | Fixed 100,000,000 AGI ERC-20 (no mint function). 2.5% tax only on DEX pair trades, sent to the treasury. Notifies the egg contract when AGI is sent to it. |
+| `AGIEgg` | The egg, as an ERC-721 NFT. Capped supply (5,000). Mint by choosing a design and paying in AGI or ETH, **or** send AGI/ETH straight to the contract from any wallet to get an egg without connecting to the site. Hatching stays closed ("coming soon") until the owner opens it. |
+| `ComputeTreasury` | Receives the tax and egg proceeds. Converts AGI into compute credits (10 per AGI). Pays GPU providers against EIP-712 receipts signed by the orchestrator. |
 
-## Wiring
+See [AUDIT.md](./AUDIT.md) for the security review.
 
-```
-                    ┌─────────────┐
-        buy/sell →  │  AGIToken   │ ── tax ──▶ ComputeTreasury ── pays GPU providers
-                    └─────────────┘
-                          ▲
-                          │ balanceOf()
-                          │
-        ┌─────────────────┴─────────────────┐
-        │                                   │
-   ┌────────────┐  consumeEgg()       ┌──────────────────┐
-   │ EggVault   │ ◀────────────────── │     PetNFT       │
-   │ (oracle)   │                     │  (stage/traits)  │
-   └────────────┘                     └──────────────────┘
-                                              ▲
-                                              │ advanceStage()
-                                              │
-                                      ┌────────────────────┐
-                                      │ EvolutionEngine    │── reads ▶ Chainlink
-                                      └────────────────────┘
-                                              │ setSkills() / throttle()
-                                              ▼
-                                      ┌────────────────────┐
-                                      │ IntelligenceReg.   │ ◀── orchestrator reads
-                                      └────────────────────┘
+## Getting an egg without connecting
+
+1. Send at least one egg's price in AGI or ETH to the `AGIEgg` address.
+2. The contract mints one egg per full price (up to 10 per send) to the
+   sending address and refunds the remainder in the same transaction.
+3. If the amount is below the price, eggs are sold out, or the sender
+   cannot hold NFTs, the transfer reverts and nothing is taken.
+
+Direct sends get a random design. Send from a wallet you control, not
+from an exchange.
+
+## Commands
+
+```bash
+cd contracts
+npm install
+npm run build   # compile (uses the bundled solc-js, no download needed)
+npm test        # 36 tests incl. randomized property tests
 ```
 
-The orchestrator is the off-chain AI worker. Before serving any inference
-for a pet it reads `IntelligenceRegistry.perms(petId)` to check skills,
-priority, and degraded state. This is what the Next.js MVP simulates.
+Static analysis:
+
+```bash
+pip install slither-analyzer
+npx hardhat compile --force
+slither . --hardhat-ignore-compile --filter-paths "node_modules|src/test" --exclude-dependencies
+```
+
+## Deploying
+
+Local dry run (deploys, wires, and does one direct AGI send and one ETH send):
+
+```bash
+npx hardhat run scripts/deploy.js
+```
+
+Real network:
+
+```bash
+RPC_URL=https://... DEPLOYER_KEY=0x... ORCHESTRATOR=0x... \
+AGI_HOLDER=0x... PRICE_AGI=500 PRICE_ETH=0.01 MIN_HOLD=500 \
+npx hardhat run scripts/deploy.js --network target
+```
+
+The addresses are written to `deployments/target.json`. Then set on the
+site (Vercel environment variables):
+
+```
+NEXT_PUBLIC_EGG_CONTRACT=<AGIEgg address>
+NEXT_PUBLIC_CHAIN_NAME=<e.g. Base>
+NEXT_PUBLIC_EGG_PRICE_AGI=500
+NEXT_PUBLIC_EGG_PRICE_ETH=0.01
+```
+
+Until `NEXT_PUBLIC_EGG_CONTRACT` is set, the site says the address is
+published at launch and shows no address.
+
+Egg images: on-chain metadata points to
+`https://agieggs.vercel.app/api/egg-image/<design>`, where `<design>` is the
+egg's position in `lib/eggs.ts`. New designs must be appended to the end of
+that list, then `setDesignCount` raised on-chain.

@@ -4,6 +4,7 @@ import { Suspense, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Egg } from "@/components/Egg";
+import { DirectSend } from "@/components/DirectSend";
 import {
   EGG_CATALOG,
   FAMILY_LABEL,
@@ -139,6 +140,8 @@ function ChamberInner() {
               k="To hatch"
               v={`${fmtUsd(HATCH_HOLDINGS_USD)} held`}
             />
+            <Attr k="Token" v="ERC-721 NFT" />
+            <Attr k="Design no." v={String(EGG_CATALOG.indexOf(egg))} mono />
           </dl>
 
           {/* Holdings vs. requirement */}
@@ -317,6 +320,8 @@ function ChamberInner() {
           {msg && <div className="mt-4 body-mute text-[13px]">{msg}</div>}
         </div>
       </div>
+
+      <DirectSend />
 
       {/* ---------- Earnings & Convert ---------- */}
       {alreadyHatched && (

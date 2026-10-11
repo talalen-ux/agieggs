@@ -38,6 +38,7 @@ SHEETS = {
     "ocean.webp": ["oc-wave", "oc-reef", "oc-abyss", "oc-seaglass", "oc-maelstrom", "oc-aquamarine"],
     "flame.webp": ["fl-blaze", "fl-pyre", "fl-magma", "fl-ruby", "fl-molten", "fl-phoenix"],
     "solar.webp": ["so-bolt", "so-halo", "so-citrine", "so-circuit", "so-radiance", "so-comb"],
+    "summit.webp": ["sm-quarry", "sm-snowcap", "sm-basalt", "sm-canyon", "sm-glacite", "sm-serpentine"],
 }
 
 ALPHA_MIN = 8          # pixels at or below this alpha count as background

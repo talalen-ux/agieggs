@@ -1,84 +1,68 @@
 # AGI.Pets
 
-A living AI companion protocol where intelligence evolves alongside economic commitment.
+A living AI companion protocol: choose an egg, contribute AGI, hatch it, and
+earn compute credits as your pet grows.
 
-> Buy AGI → Earn Eggs → Reach USD Threshold → Hatch → Train → Upgrade → Consume more AGI.
-
-This repo is the MVP. It runs the entire core loop end-to-end as a Next.js
-app, with Claude wired in as the pet brain and a set of Solidity sketches
-showing the on-chain shape.
+This repo holds the Next.js site and app, and the Solidity contracts
+(`contracts/`).
 
 ## What's in here
 
 ```
 app/                Next.js 14 App Router
-  page.tsx          Home — your pet lives here
-  eggs/             Egg Chamber (buy/sell AGI, hatch)
-  evolve/           Evolution screen (band check + train)
-  brain/            Intelligence panel (traits, skills, memory)
-  chat/             iMessage-style chat with your pet
-  arena/            Social arena (spar with other pets)
-  api/              State-mutating endpoints
-components/         Pet3D, Nav, Stat, StateProvider
-lib/                Game state engine
-  economics.ts      Tax, egg accrual, band/degradation rules
-  pet.ts            Mint, traits, evolution, training
-  ai.ts             Claude SDK wrapper, system-prompt builder
-  storage.ts        File-backed state for the MVP
-contracts/          Solidity sketches (AGIToken, EggVault, PetNFT, …)
+  page.tsx          Landing page
+  choose/           Discover: the egg collection with family filters
+  eggs/             Chamber: egg details, buy/withdraw AGI, hatch,
+                    convert credits, and "send directly" (no connection)
+  evolve/ brain/    Evolution and intelligence panels
+  chat/ arena/      Chat with your pet, social arena
+  api/              App endpoints, plus /api/egg-image/<design> for NFT art
+components/         Egg, Nav, HowItWorksMotion, DirectSend, ...
+lib/                App state engine (simulated economy for the MVP)
+  eggs.ts           Egg catalog; list position = on-chain design number
+  economics.ts      Holding rule, earn rates, credit conversion
+public/eggs/        Source sheets and single-egg images (single/)
+scripts/            slice_eggs.py cuts sheets into clean single eggs
+contracts/          AGIToken, AGIEgg (ERC-721), ComputeTreasury
+                    with tests and a security review (AUDIT.md)
 ```
 
-## Running it
+## The flow
+
+| Step | What happens |
+|---|---|
+| Choose your egg | Browse the collection on Discover and open one in the Chamber. |
+| Contribute AGI | Hold at least $25 of AGI to be eligible to hatch. |
+| Hatch | The egg is an ERC-721 NFT. What hatches is coming soon. |
+| Earn compute credits | Your pet earns AGI through chat, training and the arena; convert it to compute credits. |
+
+Eggs can also be obtained without connecting to the site: send AGI or ETH
+straight to the egg contract from any wallet. See `contracts/README.md`.
+
+## Running the site
 
 ```bash
 npm install
-cp .env.example .env.local        # add your ANTHROPIC_API_KEY
+cp .env.example .env.local   # optional: ANTHROPIC_API_KEY for the pet's chat
 npm run dev
 ```
 
-Then open <http://localhost:3000>.
+Without an API key, the pet replies with a local fallback. The app's economy
+is simulated server-side for the MVP; state is stored in `data/state.json`
+(gitignored, delete it to reset).
 
-The pet has a working brain even without a key — `lib/ai.ts` falls back to a
-deterministic stub so the demo flow is uninterrupted. Add `ANTHROPIC_API_KEY`
-to get the real personality-conditioned chat with prompt caching enabled.
+## Contracts
 
-State persists to `data/state.json` (gitignored). Delete that file to reset.
+```bash
+cd contracts && npm install && npm test
+```
 
-## The core loop, mechanically
+36 tests pass, including randomized property tests. See
+`contracts/README.md` for deployment and `contracts/AUDIT.md` for the
+security review. Not yet deployed to a live network.
 
-| Step | Where | What happens |
-|---|---|---|
-| Buy AGI | `app/eggs` | 2.5% routes to compute treasury. Tiny price drift to discourage whale dumps. |
-| Earn eggs | passive | While your USD-denominated holdings stay in-band, eggs accrue at 0.4 / $·day, capped 3/day, capped 5 pending per wallet. |
-| Hatch | `app/eggs` | Burns 1 egg fragment, mints a pet with seeded traits + name. Hard-capped at 5,000 pets. |
-| Train | `app/evolve` | Burns 10 AGI to the GPU pool. +XP, +intelligence. |
-| Evolve | `app/evolve` | `canEvolve()` checks: USD ≥ stage band, XP ≥ stage requirement, not degraded. |
-| Chat | `app/chat` | Claude turn with cached system prompt: stage, intelligence, 5-axis personality, last 8 memories, degraded flag. |
-| Decay | automatic | If holdings drop below the *current* stage's band → degraded mode → can't train, throttled brain, memory still decays. |
-| Spar | `app/arena` | Logistic XP roll based on intelligence delta. |
+## Fixed numbers
 
-## Scarcity & anti-dump, in three numbers
-
-- **100,000,000** AGI cap — fixed. No inflation.
-- **5,000** pets, ever. Egg accrual stops once minted hits the cap.
-- **In-band only** — eggs only accrue while you sit inside your committed
-  USD band. Drop out and your pet degrades. You can always sell, but the
-  protocol stops rewarding you the moment you stop committing.
-
-## On-chain layer (sketches)
-
-See `contracts/README.md` for the wiring diagram. The Next.js app simulates
-the same invariants the contracts enforce, so you can swap the persistence
-layer for an EVM RPC + viem and the rest of the app stays the same.
-
-## Roadmap stubs
-
-The MVP omits, on purpose, the stuff that needs production care:
-- Actual on-chain deployment + Hardhat tests
-- IPFS memory anchor pinning
-- PinLink GPU integration in the treasury claim flow
-- Multi-agent / DAO formation logic at the AGI stage
-- WebGL pet renderer (current is CSS-only)
-
-These are scoped, not handwaved. The interfaces in `lib/` and `contracts/`
-already match the production shape.
+- **100,000,000** AGI, minted once; no mint function exists.
+- **5,000** eggs maximum (immutable in the contract).
+- **2.5%** tax on DEX trades only, routed to the compute treasury (a constant).

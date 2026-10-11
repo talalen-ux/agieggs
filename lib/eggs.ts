@@ -2,8 +2,9 @@
  * Egg catalog.
  *
  * Artwork lives at /public/eggs/single/<id>.webp, cut from the source sheets
- * by scripts/slice_eggs.py. The `id` is the stable key — hatch seeded with `egg:<id>` always rolls the
- * same cosmetic shell, so what a visitor picks on /choose is what hatches.
+ * by scripts/slice_eggs.py. The `id` is the stable key, and an entry's
+ * position in EGG_CATALOG is its on-chain design number in the AGIEgg NFT
+ * contract, so new eggs must only ever be appended to the end.
  *
  * `description` is visual copy only (what the shell looks like). We never
  * promise trait biases, yields, or availability tiers here — those come
@@ -27,7 +28,8 @@ export type EggFamily =
   | "verdant"
   | "ocean"
   | "flame"
-  | "solar";
+  | "solar"
+  | "summit";
 
 export type EggId =
   // Aqua ------------------------------------------------------------
@@ -80,7 +82,10 @@ export type EggId =
   | "fl-ruby" | "fl-molten" | "fl-phoenix"
   // Solar -----------------------------------------------------------
   | "so-bolt" | "so-halo" | "so-citrine"
-  | "so-circuit" | "so-radiance" | "so-comb";
+  | "so-circuit" | "so-radiance" | "so-comb"
+  // Summit ----------------------------------------------------------
+  | "sm-quarry" | "sm-snowcap" | "sm-basalt"
+  | "sm-canyon" | "sm-glacite" | "sm-serpentine";
 
 export type EggCatalogEntry = {
   id: EggId;
@@ -108,6 +113,7 @@ export const FAMILY_LABEL: Record<EggFamily, string> = {
   ocean: "Ocean",
   flame: "Flame",
   solar: "Solar",
+  summit: "Summit",
 };
 
 export const EGG_CATALOG: EggCatalogEntry[] = [
@@ -348,12 +354,26 @@ export const EGG_CATALOG: EggCatalogEntry[] = [
     description: "Pearl bands spiralling over yellow light." },
   { id: "so-comb", name: "Comb", family: "solar", theme: "Cell",
     description: "Yellow stone tiles opening on a crystal hollow." },
+
+  // --- Summit ----------
+  { id: "sm-quarry", name: "Quarry", family: "summit", theme: "Granite",
+    description: "Speckled granite plates split on a smoky quartz seam." },
+  { id: "sm-snowcap", name: "Snowcap", family: "summit", theme: "Peak",
+    description: "Snow-capped ridges over blue glacial ice." },
+  { id: "sm-basalt", name: "Basalt", family: "summit", theme: "Vent",
+    description: "Black basalt blocks over a glowing lava seam." },
+  { id: "sm-canyon", name: "Canyon", family: "summit", theme: "Stratum",
+    description: "Banded canyon rock with a citrine vein." },
+  { id: "sm-glacite", name: "Glacite", family: "summit", theme: "Melt",
+    description: "Streaked slate around a channel of pale ice." },
+  { id: "sm-serpentine", name: "Serpentine", family: "summit", theme: "Moss",
+    description: "Green serpentine stone with moss and a white quartz core." },
 ];
 
 export const FAMILIES: EggFamily[] = [
   "aqua", "industrial", "hex", "fantasy", "stone", "wood", "crystal", "gold",
   "earth", "electric", "terra", "feather", "frost", "verdant",
-  "ocean", "flame", "solar",
+  "ocean", "flame", "solar", "summit",
 ];
 
 export function eggById(id: EggId): EggCatalogEntry {
