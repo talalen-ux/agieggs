@@ -35,6 +35,9 @@ SHEETS = {
     "feather.webp": ["fe-ashwing", "fe-peacock", "fe-dove", "fe-kingfisher", "fe-owl", "fe-raven"],
     "frost.webp": ["fr-glacier", "fr-rime", "fr-berg", "fr-nightfrost", "fr-drift", "fr-hoar"],
     "verdant.webp": ["vd-scarab", "vd-bud", "vd-cicada", "vd-firefly", "vd-laurel", "vd-canopy"],
+    "ocean.webp": ["oc-wave", "oc-reef", "oc-abyss", "oc-seaglass", "oc-maelstrom", "oc-aquamarine"],
+    "flame.webp": ["fl-blaze", "fl-pyre", "fl-magma", "fl-ruby", "fl-molten", "fl-phoenix"],
+    "solar.webp": ["so-bolt", "so-halo", "so-citrine", "so-circuit", "so-radiance", "so-comb"],
 }
 
 ALPHA_MIN = 8          # pixels at or below this alpha count as background

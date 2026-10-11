@@ -24,7 +24,10 @@ export type EggFamily =
   | "terra"
   | "feather"
   | "frost"
-  | "verdant";
+  | "verdant"
+  | "ocean"
+  | "flame"
+  | "solar";
 
 export type EggId =
   // Aqua ------------------------------------------------------------
@@ -68,7 +71,16 @@ export type EggId =
   | "fr-nightfrost" | "fr-drift" | "fr-hoar"
   // Verdant ---------------------------------------------------------
   | "vd-scarab" | "vd-bud" | "vd-cicada"
-  | "vd-firefly" | "vd-laurel" | "vd-canopy";
+  | "vd-firefly" | "vd-laurel" | "vd-canopy"
+  // Ocean -----------------------------------------------------------
+  | "oc-wave" | "oc-reef" | "oc-abyss"
+  | "oc-seaglass" | "oc-maelstrom" | "oc-aquamarine"
+  // Flame -----------------------------------------------------------
+  | "fl-blaze" | "fl-pyre" | "fl-magma"
+  | "fl-ruby" | "fl-molten" | "fl-phoenix"
+  // Solar -----------------------------------------------------------
+  | "so-bolt" | "so-halo" | "so-citrine"
+  | "so-circuit" | "so-radiance" | "so-comb";
 
 export type EggCatalogEntry = {
   id: EggId;
@@ -93,6 +105,9 @@ export const FAMILY_LABEL: Record<EggFamily, string> = {
   feather: "Feather",
   frost: "Frost",
   verdant: "Verdant",
+  ocean: "Ocean",
+  flame: "Flame",
+  solar: "Solar",
 };
 
 export const EGG_CATALOG: EggCatalogEntry[] = [
@@ -291,11 +306,54 @@ export const EGG_CATALOG: EggCatalogEntry[] = [
     description: "Gilded green leaves around pale scaled jade." },
   { id: "vd-canopy", name: "Canopy", family: "verdant", theme: "Leaf",
     description: "Bright leaves wrapped around an emerald eye." },
+
+  // --- Ocean ----------
+  { id: "oc-wave", name: "Wave", family: "ocean", theme: "Swell",
+    description: "Cobalt waves curling around lit blue water." },
+  { id: "oc-reef", name: "Reef", family: "ocean", theme: "Branch",
+    description: "Pale coral branches climbing over turquoise glass." },
+  { id: "oc-abyss", name: "Abyss", family: "ocean", theme: "Deep",
+    description: "Midnight blue glass scattered with points of light." },
+  { id: "oc-seaglass", name: "Seaglass", family: "ocean", theme: "Shore",
+    description: "Frosted sea-glass pebbles set in silver." },
+  { id: "oc-maelstrom", name: "Maelstrom", family: "ocean", theme: "Spiral",
+    description: "A whirlpool of blue water bound in silver bands." },
+  { id: "oc-aquamarine", name: "Aquamarine", family: "ocean", theme: "Facet",
+    description: "A faceted aquamarine framed by silver leaves." },
+
+  // --- Flame ----------
+  { id: "fl-blaze", name: "Blaze", family: "flame", theme: "Petal",
+    description: "Red lacquer petals opening on molten veins." },
+  { id: "fl-pyre", name: "Pyre", family: "flame", theme: "Tongue",
+    description: "Glassy red flames licking up the shell." },
+  { id: "fl-magma", name: "Magma", family: "flame", theme: "Crust",
+    description: "Black lava crust cracked over a red glow." },
+  { id: "fl-ruby", name: "Ruby", family: "flame", theme: "Facet",
+    description: "Faceted ruby held in a silver gothic cage." },
+  { id: "fl-molten", name: "Molten", family: "flame", theme: "Flow",
+    description: "Glossy red shell with fire running between iron bands." },
+  { id: "fl-phoenix", name: "Phoenix", family: "flame", theme: "Plume",
+    description: "Crimson feathers parting on a burning seam." },
+
+  // --- Solar ----------
+  { id: "so-bolt", name: "Bolt", family: "solar", theme: "Strike",
+    description: "Yellow plates split by a crackling lightning seam." },
+  { id: "so-halo", name: "Halo", family: "solar", theme: "Ring",
+    description: "Glossy yellow rings around a glowing drop." },
+  { id: "so-citrine", name: "Citrine", family: "solar", theme: "Facet",
+    description: "Faceted citrine laced with light under a metal cage." },
+  { id: "so-circuit", name: "Circuit", family: "solar", theme: "Trace",
+    description: "Black circuitry plates around a lit yellow core." },
+  { id: "so-radiance", name: "Radiance", family: "solar", theme: "Swirl",
+    description: "Pearl bands spiralling over yellow light." },
+  { id: "so-comb", name: "Comb", family: "solar", theme: "Cell",
+    description: "Yellow stone tiles opening on a crystal hollow." },
 ];
 
 export const FAMILIES: EggFamily[] = [
   "aqua", "industrial", "hex", "fantasy", "stone", "wood", "crystal", "gold",
   "earth", "electric", "terra", "feather", "frost", "verdant",
+  "ocean", "flame", "solar",
 ];
 
 export function eggById(id: EggId): EggCatalogEntry {
